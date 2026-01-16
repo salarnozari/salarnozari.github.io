@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research | Salar Nozari</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="research-page">
+    <nav class="top-nav">
+        <a href="index.html" class="back-link">&larr; Back</a>
+        <span class="nav-title">Research</span>
+    </nav>
+
+    <main class="research-content">
+        <article class="paper">
+            <h2>Cost Transparency of Enterprise AI Adoption</h2>
+            <p class="coauthors">With Soogand Alavi and Andrea Luangrath</p>
+            <p>
+                Recent advances in large language models (LLMs) have dramatically improved performance on a wide range of tasks, driving rapid enterprise adoption. Yet, the cost of adopting these AI services is understudied. Unlike traditional software licensing in which costs are predictable before usage, commercial LLM services charge per token of input text in addition to generated output tokens. Crucially, while firms can control the input, they have limited control over output tokens, which are effectively set by generation dynamics outside of business control.
+            </p>
+            <p>
+                This research shows that subtle shifts in linguistic style can systematically alter the number of output tokens without impacting response quality. Using an experiment with OpenAI's API, this study reveals that non-polite prompts significantly increase output tokens leading to higher enterprise costs and additional revenue for OpenAI. Politeness is merely one instance of a broader phenomenon in which linguistic structure can drive unpredictable cost variation.
+            </p>
+            <p>
+                For enterprises integrating LLM into applications, this unpredictability complicates budgeting and undermines transparency in business-to-business contexts. By demonstrating how end-user behavior links to enterprise costs through output token counts, this work highlights the opacity of current pricing models and calls for new approaches to ensure predictable and transparent adoption of LLM services.
+            </p>
+        </article>
+
+        <article class="paper">
+            <h2>Field Evidence on AI-Generated Review Summaries for Carbon-Sustainable Reduction of Product Returns</h2>
+            <p class="coauthors">With Ning Zhong and Ying Xie</p>
+            <p>
+                Platforms are increasingly adopting generative AI to summarize customer reviews and support product evaluation. Yet, these systems carry environmental costs due to the computational demands of large language models. We analyze this trade-off using data from a major e-commerce platform that deployed GPT-4 to generate weekly AI-based review summaries.
+            </p>
+            <p>
+                While the use of generative AI in this context does not involve training emissions, repeated inference to update summaries represents a substantial and ongoing source of carbon dioxide output. Our results show that AI summaries reduced product return rates, leading to meaningful savings in shipping- and logistics-related emissions. However, the additional emissions generated through frequent inference outweighed these gains, resulting in a net negative environmental effect.
+            </p>
+            <p>
+                Our findings highlight the need for targeted deployment and update-frequency strategies that align environmental costs with customer-experience benefits, rather than uniform application across all product categories.
+            </p>
+        </article>
+
+        <article class="paper">
+            <h2>AI Product Review Summaries and Content Homogenization: The Changing Landscape of UGC</h2>
+            <p class="coauthors">With Soogand Alavi</p>
+            <p>
+                As digital platforms face growing volumes of user-generated content (UGC), many have turned to AI-generated review summaries to help users navigate overwhelming information. While these summaries aim to enhance efficiency, they may also reshape how content is consumed and produced in meaningful ways.
+            </p>
+            <p>
+                This study examines the behavioral consequences of introducing AI-generated summaries on a major e-commerce platform. Leveraging a natural experiment on Amazon, where AI summaries were added to product pages, we combine large-scale observational data with two randomized online experiments to examine changes in both review reading and review writing behavior.
+            </p>
+            <p>
+                We find that AI summaries reduce engagement with individual reviews. On the writing side, summaries lead to lower topical diversity, suggesting a shift toward more uniform content, potentially driven by an anchoring effect introduced by the AI-generated review summaries. The effect magnitudes vary across product types and reviewer characteristics, indicating that algorithmic mediation produces heterogeneous responses.
+            </p>
+            <p>
+                Overall, the findings reveal that AI review summaries influence both the perceived value of reading and the expressive dynamics of review generation, reshaping the UGC landscape in the process.
+            </p>
+        </article>
+
+        <article class="paper">
+            <h2>Adaptive Switchbacks</h2>
+            <p class="coauthors">With Dante Donati</p>
+            <p>
+                The switchback experiment design is a widely used approach to assess the impact of interventions or policies over time. However, it is often assumed that the effect of treatment remains constant throughout the study period. This assumption overlooks the potential temporal dynamics that may exist, particularly in scenarios where users learn and adapt to a new policy.
+            </p>
+            <p>
+                In this paper, we investigate the phenomenon of varying treatment effects over time, specifically focusing on the example of user learning for a new feature. We demonstrate that the effect of treatment is initially greater due to the novelty factor but could gradually stabilize as users become familiar with the policy. By analyzing data from real-world experiments, we show that failing to account for these temporal dynamics can lead to biased estimations of treatment effects.
+            </p>
+            <p>
+                To address this issue, we propose a novel approach, adaptive switchback, that incorporates a long-term estimator. Our findings highlight the importance of considering temporal dynamics when designing and analyzing switchback experiments, emphasizing the need to capture and account for evolving treatment effects over time.
+            </p>
+        </article>
+    </main>
+</body>
+</html>
