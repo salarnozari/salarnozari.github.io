@@ -44,7 +44,7 @@
           "@type": "Organization",
           "name": "UT Dallas"
         },
-        "knowsAbout": ["Quantitative Marketing", "Causal Machine Learning", "Digital Experimentation", "Platform Design", "Product Returns"],
+        "knowsAbout": ["AI Shopping Agents", "Quantitative Marketing", "Causal Machine Learning", "Digital Experimentation", "Platform Design", "Product Returns"],
         "sameAs": [
           "https://tippie.uiowa.edu/people/salar-nozari"
         ]
@@ -52,13 +52,14 @@
     }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="home">
     <div class="single-page">
+        <div class="card">
         <div class="left-panel">
             <div class="profile-image">
                 <img src="profile.webp" alt="Salar Nozari">
@@ -73,7 +74,7 @@
         <div class="right-panel">
             <div class="bio">
                 <p>
-                    I am an Assistant Professor of Marketing at the <a href="https://tippie.uiowa.edu/people/salar-nozari" target="_blank">University of Iowa</a>. My current research explores Digtal Platforms. Read more <a href="research.html">here</a>.
+                    I am an Assistant Professor of Marketing at the <a href="https://tippie.uiowa.edu/people/salar-nozari" target="_blank">University of Iowa</a>. I'm now working on shopping agents, the AI agents that search, compare, and buy on behalf of consumers. Read more <a href="research.html">here</a>.
                 </p>
                 <p>
                     I've received my PhD. in Quantitative Marketing with a focus on Causal ML &amp; Digital Experimentation from UT Dallas. Outside of research, I keep myself busy with reading about philosophy, mythology, observing the sky and talking with my dog, Lili (mostly about her food and her research ideas).
@@ -83,7 +84,31 @@
                 </p>
             </div>
         </div>
+        </div>
     </div>
-    <div class="photo-credit">Photo by Borna Shafie</div>
+
+    <!-- Shopping-agent mall (see mall.js) -->
+    <div class="mall" id="mall" aria-hidden="true">
+        <canvas></canvas>
+        <div class="agent-status" id="agent-status" hidden></div>
+    </div>
+    <div class="agent-bubble" id="agent-bubble" aria-live="polite" hidden>
+        <div class="bubble-ask">
+            <p>Hi! I'm a shopping agent. What do you want?</p>
+            <form id="agent-form">
+                <input id="agent-input" type="text" maxlength="60" autocomplete="off" placeholder="e.g. running shoes under $100" aria-label="What do you want to buy?">
+                <button type="submit">Go</button>
+            </form>
+        </div>
+        <div class="bubble-answer" hidden>
+            <p class="bubble-main">Sorry, this guy has only papers. Nothing to actually buy here.</p>
+            <p class="bubble-sub"></p>
+            <div class="bubble-actions">
+                <a href="research.html">See the papers</a>
+                <button type="button" id="agent-again">Ask again</button>
+            </div>
+        </div>
+    </div>
+    <script src="mall.js" defer></script>
 </body>
 </html>
