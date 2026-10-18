@@ -1,6 +1,3 @@
-// Shopping-agent mall for the home page: a symmetrical retro (80s synthwave) mall drawn in
-// one-point perspective, an ice rink in front with the bio printed under the ice, skaters
-// gliding over it, and a cart-riding shopping agent that searches random stores in five seconds.
 (() => {
     const page = document.querySelector('.single-page');
     const card = document.querySelector('.card');
@@ -10,9 +7,9 @@
     if (!page || !card || !spacer || !bgCanvas || !fgCanvas) return;
     const bg = bgCanvas.getContext('2d');
     const fg = fgCanvas.getContext('2d');
-    const scene = document.createElement('canvas');     // static mall, drawn once per layout
-    const rinkLayer = document.createElement('canvas'); // the rink, drawn in front of the shoppers
-    const frost = document.createElement('canvas');     // ice surface drawn over the bio
+    const scene = document.createElement('canvas');
+    const rinkLayer = document.createElement('canvas');
+    const frost = document.createElement('canvas');
 
     const bubble = document.getElementById('agent-bubble');
     const askBox = bubble.querySelector('.bubble-ask');
@@ -25,7 +22,6 @@
     const status = document.getElementById('agent-status');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Ordinary shops on the signs; the joke is that they are just product categories from papers.
     const STORES = [
         ['CANDY SHOP', '#ff3cac'], ['HOT SAUCE', '#ff5e5e'], ['SNEAKERS', '#01cdfe'],
         ['TOY STORE', '#ffb800'], ['COFFEE', '#ff9a5a'], ['GADGETS', '#05ffa1'],
@@ -84,10 +80,8 @@
         }
     }
 
-    // ---------- perspective ----------
-    // World units: x across the mall (0 = centre), y up (0 = ground floor), z into the screen.
     const P = (x, y, z) => ({ x: V.cx + V.f * x / z, y: V.cy - V.f * (y - V.camY) / z });
-    const ppu = z => V.f / z;                       // screen pixels per world unit at depth z
+    const ppu = z => V.f / z;
 
     function quad(c, pts, fill) {
         c.beginPath();
@@ -117,8 +111,6 @@
         c.restore();
     }
 
-    // Local drawing frame on a side wall at (y, z): x runs along the wall in reading order,
-    // y runs down, and `k` local units make one world unit.
     function wallFrame(side, y, z, k) {
         const x = side * V.X, p = P(x, y, z);
         const ux = -V.f * x / (z * z), uy = V.f * (y - V.camY) / (z * z);
@@ -133,7 +125,6 @@
         c.restore();
     }
 
-    // ---------- people (skaters, shoppers, escalator riders) ----------
     const SKIN = ['#f1c27d', '#e0ac69', '#c68642', '#8d5524', '#ffdbac'];
     const JACKET = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
     const PANTS = ['#1e3a8a', '#111827', '#4b5563', '#7c2d12', '#065f46', '#be185d'];
@@ -147,7 +138,6 @@
         };
     }
 
-    // mode: 'skate' (gliding, leaning), 'walk' (scissor legs, shopping bag) or 'stand'
     function drawPerson(c, p, x, y, scale, face, phase, mode, tilt = 0) {
         c.save();
         c.translate(x, y);
@@ -245,7 +235,6 @@
         }
         c.restore();
     }
-    // Window products for each store, drawn about 20 units tall with the base at y = 0.
     const BRIGHT = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'];
     const pickC = rnd => BRIGHT[Math.floor(rnd() * BRIGHT.length)];
     const poly = (c, pts, color) => {
@@ -565,7 +554,6 @@
         }
     };
 
-    // point on the rounded-rect skating track, clockwise from the top-left
     function trackPoint(t, lane) {
         const x = track.x - lane, y = track.y - lane, w = track.w + 2 * lane, h = track.h + 2 * lane;
         const r = Math.max(2, track.r + lane), sw = w - 2 * r, sh = h - 2 * r, arc = Math.PI * r / 2;
@@ -585,7 +573,6 @@
         return corner(x + r, y + r, Math.PI);
     }
 
-    // ---------- layout ----------
     function layout() {
         mobile = getComputedStyle(page).position !== 'fixed';
         vw = document.documentElement.clientWidth;
@@ -610,8 +597,6 @@
         H = mobile ? spacer.getBoundingClientRect().bottom + sy : vh;
         s1 = mobile ? 0.72 : clamp(vh / 860, 0.75, 0.95);
 
-        // Camera in the middle of the mall, a little below the top floor, looking straight down
-        // the corridor. On phones the mall fills the area below the rink.
         const top = mobile ? rink.y + rink.h + 6 : 0, bottom = H, regionH = bottom - top;
         const K = 3, Lh = 4, ceil = K * Lh, camY = mobile ? 6 : 7, zNear = 10;
         const ppuN = regionH * 1.08 / ceil;
@@ -619,7 +604,7 @@
             K, Lh, ceil, camY, zNear, zFar: 52, top, bottom,
             f: ppuN * zNear, cx: W / 2, cy: bottom + 0.03 * regionH - ppuN * camY, X: W * 0.51 / ppuN
         };
-        V.B = V.X * 0.33;                 // balcony walkway depth
+        V.B = V.X * 0.33;
         V.storeH = 3.3;
         V.fascia = 0.6;
         V.zStart = zNear * 0.55;
@@ -645,7 +630,6 @@
         buildEscalators();
     }
 
-    // where the agent hovers: next to the question box, or off to the side after "Just browsing"
     function boxRect() {
         const bw = bubble.hidden ? Math.min(560, vw - 24) : bubble.offsetWidth;
         const bh = bubble.hidden ? 200 : bubble.offsetHeight;
@@ -664,7 +648,6 @@
         return { x: p.x, y: p.y, s: ppu(st.zm) * BOT_UNITS / BOT_H };
     };
 
-    // stores the agent can visibly drive into (on screen, big enough, not hidden behind the rink)
     function visibleStores() {
         const y0 = mobile ? V.top : 0, y1 = mobile ? H : vh;
         return stores.filter(st => {
@@ -676,7 +659,6 @@
         });
     }
 
-    // ---------- static scene ----------
     function renderScene() {
         scene.width = Math.round(W * dpr);
         scene.height = Math.round(H * dpr);
@@ -686,7 +668,6 @@
         c.fillStyle = '#12061f';
         c.fillRect(0, 0, W, H);
 
-        // ceiling with a sunset skylight down the middle
         quad(c, [P(-X, ceil, zS), P(X, ceil, zS), P(X, ceil, zF), P(-X, ceil, zF)], '#1d0b36');
         const sk = X - B;
         const sg = c.createLinearGradient(0, P(0, ceil, zS).y, 0, P(0, ceil, zF).y);
@@ -708,7 +689,6 @@
 
         drawBackWall(c);
 
-        // side walls, level by level
         for (let k = 0; k < K; k++) {
             [-1, 1].forEach(s => {
                 const y = k * Lh;
@@ -717,7 +697,6 @@
         }
         stores.forEach(st => drawStore(c, st));
 
-        // checkerboard ground floor
         const t = X / 5;
         for (let xi = -5; xi < 5; xi++) {
             for (let z = zS, j = 0; z < zF; z += t, j++) {
@@ -726,7 +705,6 @@
             }
         }
 
-        // bridges across the far end, then the side balconies
         for (let k = K - 1; k >= 1; k--) {
             const y = k * Lh;
             quad(c, [P(-X, y, zB), P(X, y, zB), P(X, y, zF), P(-X, y, zF)], y < V.camY ? '#f6c7e6' : '#1d0b36');
@@ -768,7 +746,6 @@
             });
         }
 
-        // palm planters, mirrored on both sides
         for (let k = 0; k < K; k++) {
             for (let z = V.zNear + 3; z < zB; z += 11) {
                 [-1, 1].forEach(s => {
@@ -793,7 +770,6 @@
         c.save();
         quad(c, wall);
         c.clip();
-        // synthwave sun with stripes cut out of it
         const sc = P(0, ceil * 0.45, zF), sr = ppu(zF) * X * 0.42;
         const sunG = c.createLinearGradient(0, sc.y - sr, 0, sc.y + sr);
         sunG.addColorStop(0, '#fffb96');
@@ -802,7 +778,6 @@
         circle(c, sc.x, sc.y, sr);
         c.fillStyle = mg;
         for (let i = 0; i < 6; i++) c.fillRect(sc.x - sr, sc.y + sr * (0.08 + i * 0.16), sr * 2, sr * (0.03 + i * 0.022));
-        // neon grid below the horizon
         const hz = P(0, ceil * 0.2, zF).y;
         c.fillStyle = '#1a0638';
         c.fillRect(wall[0].x, hz, wall[1].x - wall[0].x, yBot - hz);
@@ -827,7 +802,6 @@
         c.restore();
     }
 
-    // a potted palm (or a flat silhouette when `solid` is given); s = scale, dir = lean
     function drawPalm(c, x, y, s, dir, solid) {
         if (s < 0.15) return;
         c.save();
@@ -870,7 +844,6 @@
         const w = (z, y) => P(side * V.X, y, z);
 
         quad(c, [w(za, y0), w(zb, y0), w(zb, yT), w(za, yT)], '#170a2b');
-        // fascia with a neon name
         quad(c, [w(za + 0.1, yF), w(zb - 0.1, yF), w(zb - 0.1, yT - 0.05), w(za + 0.1, yT - 0.05)], '#0d0518');
         if (ppu(zm) * V.fascia > 7) {
             inFrame(c, wallFrame(side, (yF + yT) / 2, zm, 40), () => {
@@ -884,7 +857,6 @@
             });
         }
 
-        // bright window
         const ga = za + 0.3, gb = zb - 0.3, gy = yF - 0.15;
         const win = [w(ga, y0), w(gb, y0), w(gb, gy), w(ga, gy)];
         quad(c, win, '#fdf0ff');
@@ -893,12 +865,10 @@
         g.addColorStop(1, st.color + '99');
         quad(c, win, g);
 
-        // door
         const dw = Math.min(1.6, (zb - za) * 0.3), d0 = zm - dw / 2, d1 = zm + dw / 2;
         st.door = [w(d0, y0), w(d1, y0), w(d1, y0 + 2.3), w(d0, y0 + 2.3)];
         quad(c, st.door, 'rgba(29,11,58,0.88)');
 
-        // shelves of the store's own products either side of the door
         const product = PRODUCTS[st.name];
         [[ga + 0.15, d0 - 0.15], [d1 + 0.15, gb - 0.15]].forEach(([a, b]) => {
             if (b - a < 0.6) return;
@@ -915,7 +885,6 @@
             });
         });
 
-        // neon outlines
         c.save();
         c.strokeStyle = st.color;
         c.shadowColor = st.color;
@@ -931,7 +900,6 @@
         seg(c, w(za, y0), w(za, yT + 0.6));
     }
 
-    // the rink sits flat in front of the mall, with the bio printed under its ice
     function renderRink() {
         const m = 30, { x, y, w, h, r } = rink;
         rinkLayer.width = Math.round((w + 2 * m) * dpr);
@@ -977,7 +945,6 @@
         rink.layerH = h + 2 * m;
     }
 
-    // The ice surface on top of the bio: a light frost, skate scratches and glare.
     function renderFrost() {
         const { w, h, r } = rink;
         frost.width = Math.round(w * dpr);
@@ -1006,7 +973,6 @@
         });
     }
 
-    // ---------- shoppers ----------
     const walkX = (k, s) => s * (k === 0 ? V.X - 1.3 : V.X - V.B * 0.5);
 
     function buildPeople() {
@@ -1029,7 +995,6 @@
         walkers.forEach(wk => {
             if (wk.state === 'gone') {
                 if ((wk.wait -= dt) > 0) return;
-                // come back out of another store on the same floor
                 const list = stores.filter(st => st.k === wk.k && st.side === wk.s);
                 wk.z = list[Math.floor(Math.random() * list.length)].zm;
                 wk.state = 'out';
@@ -1056,13 +1021,11 @@
                 wk.dir *= -1;
                 wk.z = clamp(wk.z, zmin, zmax);
             } else if (Math.random() < dt * 0.08) {
-                // pop into the store being passed
                 if (stores.some(st => st.k === wk.k && st.side === wk.s && Math.abs(st.zm - wk.z) < 0.4)) wk.state = 'in';
             }
         });
     }
 
-    // ---------- escalators (a mirrored pair, first floor up to the top floor) ----------
     function buildEscalators() {
         escalators = [-1, 1].map(s => ({
             s, up: s < 0, xm: s * (V.X - V.B - 0.6), xa: s * (V.X - V.B - 0.15), xb: s * (V.X - V.B - 1.05),
@@ -1076,8 +1039,6 @@
         });
     }
 
-    // Up riders walk in along the first floor, ride up and walk into a top-floor store;
-    // down riders come out of a top-floor store, ride down and walk off towards the viewer.
     function riderPath(e) {
         const s = e.s, xw = walkX(1, s), xd = s * (V.X - 0.3);
         const ups = stores.filter(st => st.k === 2 && st.side === s && st.zm > e.z1 + 1 && st.zm < e.z1 + 14);
@@ -1147,7 +1108,6 @@
         });
     }
 
-    // ---------- skaters ----------
     const skaters = (() => {
         const rnd = seeded(2024);
         return Array.from({ length: 10 }, (_, i) => ({
@@ -1171,7 +1131,6 @@
         });
     }
 
-    // ---------- the agent: a hot-pink robot riding a shopping cart, same colours as its box ----------
     function drawBot(c, x, y, s, alpha, ghost) {
         const moving = A.speed > 0, fast = A.speed > 700;
         const hover = A.float && !moving;
@@ -1180,7 +1139,6 @@
         c.globalAlpha = alpha;
         c.translate(x, y);
         c.scale(s * A.face, s);
-        // glow so the agent is easy to spot while it talks
         if (!ghost && (A.float || !bubble.hidden)) {
             const rg = c.createRadialGradient(0, -70, 10, 0, -70, 110);
             rg.addColorStop(0, 'rgba(255,60,172,0.45)');
@@ -1199,7 +1157,6 @@
         c.lineCap = 'round';
         c.lineJoin = 'round';
 
-        // wheels and chassis
         [-22, 22].forEach(wx => {
             c.fillStyle = '#1d0b3a';
             circle(c, wx, -6, 6);
@@ -1219,14 +1176,12 @@
         c.fillStyle = CYAN;
         circle(c, -50, -70, 4.5);
 
-        // robot body (behind the basket front)
         c.fillStyle = PINK;
         c.strokeStyle = '#ffffff';
         c.lineWidth = 2;
         rr(c, -17, -64, 36, 30, 12);
         c.fill();
         c.stroke();
-        // a lone paper sticking out of the cart after the shopping trip
         if (A.paper) {
             c.save();
             c.translate(24, -58);
@@ -1240,7 +1195,6 @@
             for (let l = 0; l < 4; l++) c.fillRect(-5, -19 + l * 4, 10, 1);
             c.restore();
         }
-        // basket
         const basket = () => {
             c.beginPath();
             c.moveTo(-36, -60);
@@ -1266,12 +1220,10 @@
         c.strokeStyle = CYAN;
         c.lineWidth = 4;
         line(c, -37, -60, 39, -60);
-        // hands on the rim
         c.fillStyle = PINK;
         circle(c, -8, -61, 4.5);
         circle(c, 20, -61, 4.5);
 
-        // head
         c.fillStyle = '#ffffff';
         c.strokeStyle = PINK;
         c.lineWidth = 3;
@@ -1281,7 +1233,6 @@
         c.fillStyle = '#1d0b3a';
         rr(c, -16, -100, 34, 28, 10);
         c.fill();
-        // face
         c.strokeStyle = c.fillStyle = '#67e8f9';
         c.lineWidth = 2.2;
         if (!ghost) {
@@ -1328,7 +1279,6 @@
             c.fill();
         }
 
-        // propeller beanie
         [PINK, '#fffb96', CYAN, '#b967ff'].forEach((col, k) => {
             c.fillStyle = col;
             c.beginPath();
@@ -1355,7 +1305,6 @@
         c.restore();
     }
 
-    // ---------- tasks (each returns true when finished) ----------
     const move = (target, speed) => {
         let start = null;
         return dt => {
@@ -1387,8 +1336,6 @@
     };
     const call = fn => () => (fn(), true);
 
-    // A fixed-length timeline of moves and store visits, driven by the wall clock (not frame
-    // steps) so it always takes exactly its total duration.
     const timeline = (segs, onDone) => {
         const t0 = performance.now();
         let fired = -1;
@@ -1427,7 +1374,6 @@
         };
     };
 
-    // ---------- story ----------
     function intro() {
         if (started || !stores.length) return;
         started = true;
@@ -1445,7 +1391,6 @@
         A.mood = 'go';
         A.paper = false;
         A.float = false;
-        // a handful of random visible stores, all visited within exactly SEARCH_MS
         const pool = visibleStores();
         const k = Math.min(Math.max(pool.length, 1), 4 + Math.floor(Math.random() * 3));
         const order = (pool.length ? pool : stores).slice().sort(() => Math.random() - 0.5).slice(0, k);
@@ -1491,7 +1436,6 @@
         queue.push(timeline(segs, () => showAnswer(q, order.length)));
     }
 
-    // ---------- speech box ----------
     function popIn() {
         chip.hidden = true;
         bubble.hidden = false;
@@ -1524,7 +1468,6 @@
         bubble.hidden = true;
     }
 
-    // "Just browsing": the agent floats aside and waits with a small prompt
     function dismiss() {
         if (busy) return;
         busy = true;
@@ -1572,7 +1515,6 @@
     bubble.querySelectorAll('.bubble-dismiss').forEach(b => b.addEventListener('click', dismiss));
     chip.addEventListener('click', summon);
 
-    // ---------- loop ----------
     let last = performance.now();
     function frame(now) {
         const dt = Math.min(0.05, (now - last) / 1000);
@@ -1581,7 +1523,6 @@
 
         A.speed = 0;
         if (queue.length && queue[0](dt)) queue.shift();
-        // while idle, keep hovering at its spot (follows the box as it resizes)
         if (started && !busy && !queue.length) {
             const t = chip.hidden ? askSpot() : restSpot();
             const k = Math.min(1, dt * 6);
@@ -1616,7 +1557,6 @@
             }
         });
 
-        // shoppers and escalator riders, far to near
         escalators.forEach(e => drawEscalatorBody(bg, e));
         const people = [];
         walkers.forEach(wk => {
@@ -1645,7 +1585,6 @@
         bg.drawImage(rinkLayer, rink.layerX, rink.layerY, rink.layerW, rink.layerH);
         bg.restore();
 
-        // foreground: ice surface over the bio, skaters, pops and the agent
         fg.setTransform(dpr, 0, 0, dpr, 0, 0);
         fg.clearRect(0, 0, vw, vh);
         fg.save();
@@ -1702,7 +1641,6 @@
             .then(layout);
     }
 
-    // On phones the agent lives below the rink, so wait until that part is on screen.
     if (mobile && 'IntersectionObserver' in window) {
         const io = new IntersectionObserver(entries => {
             if (entries.some(e => e.isIntersecting)) {

@@ -37,7 +37,6 @@ a:hover {
     color: var(--text-primary);
 }
 
-/* ==================== HOME PAGE ==================== */
 body.home {
     background: #12061f;
     position: relative;
@@ -47,7 +46,6 @@ body.home {
     display: none !important;
 }
 
-/* The bio is printed under the ice of the rink in the mall atrium (rink, frost and skaters drawn by mall.js) */
 .single-page {
     position: fixed;
     left: 0;
@@ -102,7 +100,6 @@ body.home {
     font-weight: 600;
 }
 
-/* ==================== SHOPPING AGENT MALL ==================== */
 .mall-layer {
     position: fixed;
     inset: 0;
@@ -138,7 +135,6 @@ body.home {
     text-overflow: ellipsis;
 }
 
-/* Retro neon speech box: same hot pink + cyan as the agent, with a pointer aimed at it */
 .agent-bubble {
     position: absolute;
     top: 0;
@@ -172,7 +168,6 @@ body.home {
     transform: translateX(-50%) rotate(45deg);
 }
 
-/* desktop: the agent floats to the left of the box */
 .agent-bubble.tail-left::after {
     left: -12px;
     top: var(--tail-y, 50%);
@@ -421,7 +416,6 @@ body.home {
     color: var(--text-secondary);
 }
 
-/* ==================== RESEARCH PAGE ==================== */
 .research-page {
     overflow-y: auto;
     height: 100%;
@@ -497,14 +491,12 @@ body.home {
     margin-bottom: 0;
 }
 
-/* ==================== RESPONSIVE ==================== */
 @media (max-width: 900px), (max-height: 640px) {
     html, body.home {
         overflow-y: auto;
         height: auto;
     }
 
-    /* The rink scrolls with the card; the mall levels continue below it */
     .single-page {
         position: relative;
         bottom: auto;
