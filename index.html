@@ -52,7 +52,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -88,10 +88,10 @@
     </div>
 
     <!-- Shopping-agent mall (see mall.js) -->
-    <div class="mall" id="mall" aria-hidden="true">
-        <canvas></canvas>
-        <div class="agent-status" id="agent-status" hidden></div>
-    </div>
+    <canvas class="mall-layer" id="mall-bg" aria-hidden="true"></canvas>
+    <canvas class="mall-layer mall-fg" id="mall-fg" aria-hidden="true"></canvas>
+    <div class="mall-spacer" id="mall-spacer"></div>
+    <div class="agent-status" id="agent-status" hidden></div>
     <div class="agent-bubble" id="agent-bubble" aria-live="polite" hidden>
         <div class="bubble-ask">
             <p>Hi! I'm a shopping agent. What do you want?</p>
@@ -109,6 +109,6 @@
             </div>
         </div>
     </div>
-    <script src="mall.js" defer></script>
+    <script src="mall.js?v=2" defer></script>
 </body>
 </html>
