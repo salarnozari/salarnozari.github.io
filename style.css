@@ -167,6 +167,11 @@ body.home {
     transform: translateX(-50%) rotate(45deg);
 }
 
+/* above the rink on desktop, the box floats free of the agent */
+.agent-bubble.no-tail::after {
+    display: none;
+}
+
 .bubble-q {
     font-size: 1.5rem;
     font-weight: 700;

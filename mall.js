@@ -24,19 +24,19 @@
     const status = document.getElementById('agent-status');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Every store is a section of a (hypothetical) paper.
+    // Ordinary shops on the signs; inside, every one of them only stocks papers.
     const STORES = [
-        ['ABSTRACT', '#be185d'], ['INTRODUCTION', '#1d4ed8'], ['LITERATURE REVIEW', '#b45309'],
-        ['THEORY', '#047857'], ['HYPOTHESES', '#c2410c'], ['DATA', '#6d28d9'],
-        ['METHODS', '#0e7490'], ['MODEL', '#b91c1c'], ['IDENTIFICATION', '#15803d'],
-        ['RESULTS', '#a21caf'], ['ROBUSTNESS', '#a16207'], ['MECHANISMS', '#0369a1'],
-        ['HETEROGENEITY', '#9d174d'], ['DISCUSSION', '#4338ca'], ['LIMITATIONS', '#92400e'],
-        ['CONCLUSION', '#065f46'], ['REFERENCES', '#7c2d12'], ['APPENDIX', '#5b21b6'],
-        ['TABLES', '#155e75'], ['FIGURES', '#991b1b'], ['FOOTNOTES', '#166534'],
-        ['ACKNOWLEDGMENTS', '#86198f'], ['EXTENSIONS', '#1e40af'], ['ONLINE APPENDIX', '#854d0e']
+        ['CANDY SHOP', '#db2777'], ['HOT SAUCE', '#dc2626'], ['SNEAKERS', '#1d4ed8'],
+        ['TOY STORE', '#ea580c'], ['COFFEE', '#78350f'], ['GADGETS', '#0e7490'],
+        ['PET SHOP', '#15803d'], ['FLOWERS', '#be185d'], ['CHEESE', '#a16207'],
+        ['PERFUME', '#7e22ce'], ['BAKERY', '#b45309'], ['ICE CREAM', '#0891b2'],
+        ['VINYL RECORDS', '#111827'], ['TEA HOUSE', '#166534'], ['PIZZA', '#b91c1c'],
+        ['HATS', '#4338ca'], ['SOCKS', '#c026d3'], ['CHOCOLATE', '#7c2d12'],
+        ['JEWELRY', '#0369a1'], ['GAMES', '#6d28d9'], ['PLANTS', '#047857'],
+        ['SUNGLASSES', '#1e40af'], ['POPCORN', '#ca8a04'], ['KITES', '#e11d48']
     ];
-    const POPS = ['only text', 'just equations', 'a footnote', 'Table 3', 'p < 0.05',
-        'more papers', 'citations', 'nope', 'a lit review', 'Figure 2'];
+    const POPS = ['only papers', 'papers?!', 'more papers', 'just PDFs', 'a footnote',
+        'an appendix', 'papers again', 'nope', 'Table 3', 'a draft'];
     const FLOOR_PAD = 40, SLAB = 14, BOT_H = 130;
     const SEARCH_MS = 5000, INSIDE_MS = 320, RETURN_MS = 900;
 
@@ -294,12 +294,13 @@
         if (started && !busy && queue.length === 0) Object.assign(A, chip.hidden ? front() : side());
     }
 
-    // centre stage (where the agent asks) and the side spot it retreats to
-    const front = () => ({ x: W / 2, y: H - 10, s: s1 });
+    // where the agent asks from (off the rink on desktop, so it never covers the bio) and the
+    // spot it waits at after "Just browsing"
     const side = () => {
-        if (mobile) return front();
+        if (mobile) return { x: W / 2, y: H - 10, s: s1 };
         return { x: W - atrium.x1 >= 130 ? (atrium.x1 + W) / 2 : W - 60, y: H - 10, s: s1 };
     };
+    const front = side;
     const doorOf = i => () => {
         const st = stores[i] || stores[0];
         return { x: st.x + st.w / 2, y: st.fy - 1, s: st.doorH * 0.9 / BOT_H };
@@ -442,6 +443,326 @@
         circle(c, x + 11, fy - 23, 5);
     }
 
+    // Window products for each store, drawn about 20 units tall with the base at y = 0.
+    const BRIGHT = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6'];
+    const pickC = rnd => BRIGHT[Math.floor(rnd() * BRIGHT.length)];
+    const poly = (c, pts, color) => {
+        c.fillStyle = color;
+        c.beginPath();
+        pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y)));
+        c.closePath();
+        c.fill();
+    };
+    const PRODUCTS = {
+        'CANDY SHOP': (c, rnd) => {
+            if (rnd() < 0.5) {
+                c.strokeStyle = '#e5e7eb';
+                c.lineWidth = 1.6;
+                line(c, 0, 0, 0, -10);
+                c.fillStyle = pickC(rnd);
+                circle(c, 0, -14, 6);
+                c.strokeStyle = '#fff';
+                c.lineWidth = 1.3;
+                c.beginPath();
+                c.arc(0, -14, 3.5, 0, Math.PI * 1.5);
+                c.stroke();
+            } else {
+                c.fillStyle = 'rgba(219,234,254,0.85)';
+                rr(c, -7, -16, 14, 16, 3);
+                c.fill();
+                for (let i = 0; i < 7; i++) {
+                    c.fillStyle = pickC(rnd);
+                    circle(c, -4 + rnd() * 8, -3 - rnd() * 10, 2);
+                }
+                c.fillStyle = '#db2777';
+                c.fillRect(-6, -19, 12, 3);
+            }
+        },
+        'HOT SAUCE': (c, rnd) => {
+            const col = rnd() < 0.6 ? '#dc2626' : '#ea580c';
+            c.fillStyle = col;
+            rr(c, -4, -13, 8, 13, 2);
+            c.fill();
+            c.fillRect(-1.5, -18, 3, 5);
+            c.fillStyle = '#15803d';
+            c.fillRect(-2, -21, 4, 3);
+            c.fillStyle = '#fef3c7';
+            c.fillRect(-4, -9, 8, 4);
+            poly(c, [[0, -8.5], [1.5, -6], [0, -5.5], [-1.5, -6]], '#f97316');
+        },
+        'SNEAKERS': (c, rnd) => {
+            poly(c, [[-9, 0], [9, 0], [9, -3], [4, -5], [0, -6], [-2, -11], [-8, -11], [-9, -6]], pickC(rnd));
+            c.fillStyle = '#fff';
+            c.fillRect(-9, -2, 18, 2);
+            c.strokeStyle = '#fff';
+            c.lineWidth = 0.9;
+            line(c, -3, -9, 1, -7);
+            line(c, -3, -7, 1, -5.5);
+        },
+        'TOY STORE': (c, rnd) => {
+            if (rnd() < 0.5) {
+                c.fillStyle = '#b45309';
+                circle(c, -4, -18, 2.2);
+                circle(c, 4, -18, 2.2);
+                circle(c, 0, -14, 5);
+                circle(c, 0, -5, 5.5);
+                c.fillStyle = '#fde68a';
+                circle(c, 0, -12.5, 2);
+                circle(c, 0, -5, 3);
+            } else {
+                c.fillStyle = pickC(rnd);
+                circle(c, 0, -7, 7);
+                c.fillStyle = '#fff';
+                c.fillRect(-7, -8.5, 14, 3);
+            }
+        },
+        'COFFEE': (c, rnd) => {
+            if (rnd() < 0.5) {
+                c.fillStyle = '#fff';
+                c.strokeStyle = '#78350f';
+                c.lineWidth = 1.2;
+                rr(c, -6, -11, 11, 11, 2);
+                c.fill();
+                c.stroke();
+                c.beginPath();
+                c.arc(5, -6, 3, -Math.PI / 2, Math.PI / 2);
+                c.stroke();
+                c.fillStyle = '#78350f';
+                c.fillRect(-5, -10, 9, 2);
+                c.strokeStyle = '#a8a29e';
+                line(c, -2, -13, -1, -17);
+                line(c, 2, -13, 3, -17);
+            } else {
+                c.fillStyle = '#78350f';
+                rr(c, -6, -18, 12, 18, 2);
+                c.fill();
+                c.fillStyle = '#fef3c7';
+                c.fillRect(-4, -12, 8, 5);
+            }
+        },
+        'GADGETS': (c, rnd) => {
+            if (rnd() < 0.5) {
+                c.fillStyle = '#111827';
+                rr(c, -5, -18, 10, 18, 2);
+                c.fill();
+                c.fillStyle = '#38bdf8';
+                rr(c, -4, -16.5, 8, 14, 1);
+                c.fill();
+            } else {
+                c.strokeStyle = '#111827';
+                c.lineWidth = 2;
+                c.beginPath();
+                c.arc(0, -8, 7, Math.PI, 0);
+                c.stroke();
+                c.fillStyle = pickC(rnd);
+                rr(c, -9, -9, 4, 8, 2);
+                c.fill();
+                rr(c, 5, -9, 4, 8, 2);
+                c.fill();
+            }
+        },
+        'PET SHOP': (c, rnd) => {
+            if (rnd() < 0.5) {
+                c.fillStyle = '#f5f5f4';
+                c.fillRect(-6, -6, 12, 3);
+                [[-6, -6.5], [-6, -2.5], [6, -6.5], [6, -2.5]].forEach(([x, y]) => circle(c, x, y, 2.2));
+            } else {
+                c.fillStyle = 'rgba(186,230,253,0.8)';
+                circle(c, 0, -8, 8);
+                poly(c, [[-3, -8], [2, -10], [3, -8], [2, -6]], '#f97316');
+                poly(c, [[-3, -8], [-6, -10], [-6, -6]], '#f97316');
+            }
+        },
+        'FLOWERS': (c, rnd) => {
+            c.strokeStyle = '#16a34a';
+            c.lineWidth = 1.2;
+            [[-4, -14], [0, -17], [4, -14]].forEach(([x, y]) => line(c, 0, -6, x, y));
+            [[-4, -14], [0, -17], [4, -14]].forEach(([x, y]) => {
+                c.fillStyle = pickC(rnd);
+                circle(c, x, y, 2.6);
+                c.fillStyle = '#fde047';
+                circle(c, x, y, 1);
+            });
+            c.fillStyle = '#0ea5e9';
+            rr(c, -3, -7, 6, 7, 1.5);
+            c.fill();
+        },
+        'CHEESE': c => {
+            poly(c, [[-8, 0], [8, 0], [8, -9], [-8, -3]], '#facc15');
+            poly(c, [[-8, -3], [8, -9], [6, -10], [-8, -4]], '#fde047');
+            c.fillStyle = '#eab308';
+            circle(c, -3, -2, 1.3);
+            circle(c, 3, -4, 1.6);
+            circle(c, 6, -2, 1);
+        },
+        'PERFUME': (c, rnd) => {
+            c.fillStyle = rnd() < 0.5 ? 'rgba(240,171,252,0.9)' : 'rgba(253,186,116,0.9)';
+            rr(c, -5, -12, 10, 12, 3);
+            c.fill();
+            c.fillStyle = '#7e22ce';
+            c.fillRect(-2, -16, 4, 4);
+            c.fillStyle = 'rgba(255,255,255,0.6)';
+            c.fillRect(-3, -10, 1.5, 7);
+        },
+        'BAKERY': (c, rnd) => {
+            c.fillStyle = '#d97706';
+            c.beginPath();
+            if (rnd() < 0.5) {
+                c.ellipse(0, -5, 8, 5, 0, 0, Math.PI * 2);
+                c.fill();
+                c.strokeStyle = '#fbbf24';
+                c.lineWidth = 1;
+                [-3, 0, 3].forEach(x => line(c, x - 1, -8, x + 1, -3));
+            } else {
+                c.arc(0, -2, 8, Math.PI, 0);
+                c.fill();
+                c.strokeStyle = '#92400e';
+                c.lineWidth = 0.8;
+                [-4, 0, 4].forEach(x => line(c, x, -2, x * 0.7, -9));
+            }
+        },
+        'ICE CREAM': (c, rnd) => {
+            poly(c, [[-4, -9], [4, -9], [0, 0]], '#d97706');
+            c.fillStyle = pickC(rnd);
+            circle(c, 0, -12, 4.5);
+            c.fillStyle = '#fdf2f8';
+            circle(c, 0, -17, 3.5);
+            c.fillStyle = '#dc2626';
+            circle(c, 0, -21, 1.3);
+        },
+        'VINYL RECORDS': (c, rnd) => {
+            c.fillStyle = '#111827';
+            circle(c, 0, -9, 9);
+            c.strokeStyle = '#374151';
+            c.lineWidth = 0.6;
+            [7, 5].forEach(r => {
+                c.beginPath();
+                c.arc(0, -9, r, 0, Math.PI * 2);
+                c.stroke();
+            });
+            c.fillStyle = pickC(rnd);
+            circle(c, 0, -9, 3);
+        },
+        'TEA HOUSE': (c, rnd) => {
+            const col = pickC(rnd);
+            c.fillStyle = col;
+            c.beginPath();
+            c.ellipse(0, -6, 7, 6, 0, 0, Math.PI * 2);
+            c.fill();
+            c.fillRect(-2, -14, 4, 3);
+            c.strokeStyle = col;
+            c.lineWidth = 2;
+            line(c, 6, -7, 10, -11);
+            c.beginPath();
+            c.arc(-7, -7, 3, Math.PI / 2, Math.PI * 1.5);
+            c.stroke();
+        },
+        'PIZZA': c => {
+            poly(c, [[-7, -14], [7, -14], [0, 0]], '#fbbf24');
+            c.fillStyle = '#b45309';
+            rr(c, -8, -16, 16, 3, 1.5);
+            c.fill();
+            c.fillStyle = '#dc2626';
+            circle(c, -2, -10, 1.6);
+            circle(c, 2.5, -11, 1.4);
+            circle(c, 0, -5, 1.3);
+        },
+        'HATS': (c, rnd) => {
+            if (rnd() < 0.5) {
+                c.fillStyle = '#111827';
+                c.fillRect(-5, -15, 10, 13);
+                c.fillRect(-8, -3, 16, 3);
+                c.fillStyle = pickC(rnd);
+                c.fillRect(-5, -6, 10, 2);
+            } else {
+                c.fillStyle = pickC(rnd);
+                c.beginPath();
+                c.arc(0, -2, 7, Math.PI, 0);
+                c.fill();
+                c.fillRect(0, -3, 10, 2.5);
+            }
+        },
+        'SOCKS': (c, rnd) => {
+            const col = pickC(rnd);
+            c.fillStyle = col;
+            c.fillRect(-3, -18, 6, 14);
+            rr(c, -3, -7, 11, 7, 3);
+            c.fill();
+            c.fillStyle = '#fff';
+            c.fillRect(-3, -15, 6, 1.5);
+            c.fillRect(-3, -11, 6, 1.5);
+        },
+        'CHOCOLATE': c => {
+            c.fillStyle = '#7c2d12';
+            rr(c, -6, -17, 12, 17, 1);
+            c.fill();
+            c.strokeStyle = '#5b1f0e';
+            c.lineWidth = 0.8;
+            line(c, 0, -17, 0, -8);
+            line(c, -6, -13, 6, -13);
+            c.fillStyle = '#fbbf24';
+            c.fillRect(-6, -8, 12, 8);
+        },
+        'JEWELRY': c => {
+            c.strokeStyle = '#facc15';
+            c.lineWidth = 2;
+            c.beginPath();
+            c.arc(0, -6, 5, 0, Math.PI * 2);
+            c.stroke();
+            poly(c, [[-3, -11], [3, -11], [4.5, -13.5], [0, -17], [-4.5, -13.5]], '#7dd3fc');
+        },
+        'GAMES': (c, rnd) => {
+            c.fillStyle = '#4b5563';
+            rr(c, -8, -11, 16, 8, 4);
+            c.fill();
+            c.fillStyle = '#e5e7eb';
+            c.fillRect(-6, -7.6, 4, 1.2);
+            c.fillRect(-4.6, -9, 1.2, 4);
+            c.fillStyle = pickC(rnd);
+            circle(c, 4, -8.5, 1.2);
+            circle(c, 6, -6.5, 1.2);
+        },
+        'PLANTS': c => {
+            poly(c, [[-5, -6], [5, -6], [4, 0], [-4, 0]], '#c2410c');
+            c.fillStyle = '#16a34a';
+            [[-4, -11, -0.6], [4, -11, 0.6], [0, -14, 0]].forEach(([x, y, a]) => {
+                c.beginPath();
+                c.ellipse(x, y, 2.5, 6, a, 0, Math.PI * 2);
+                c.fill();
+            });
+        },
+        'SUNGLASSES': (c, rnd) => {
+            c.fillStyle = rnd() < 0.5 ? '#111827' : '#7c3aed';
+            circle(c, -4.5, -8, 4);
+            circle(c, 4.5, -8, 4);
+            c.strokeStyle = '#111827';
+            c.lineWidth = 1.2;
+            line(c, -1, -9, 1, -9);
+            line(c, -8.5, -9, -10, -11);
+            line(c, 8.5, -9, 10, -11);
+        },
+        'POPCORN': c => {
+            c.fillStyle = '#fff7ed';
+            [[-4, -14], [0, -16], [4, -14], [-2, -12], [2, -12]].forEach(([x, y]) => circle(c, x, y, 2.8));
+            poly(c, [[-6, -12], [6, -12], [4.5, 0], [-4.5, 0]], '#dc2626');
+            c.fillStyle = '#fff';
+            c.fillRect(-2.5, -12, 1.8, 12);
+            c.fillRect(1.2, -12, 1.8, 12);
+        },
+        'KITES': (c, rnd) => {
+            const col = pickC(rnd);
+            poly(c, [[0, -21], [6, -13], [0, -10], [-6, -13]], col);
+            poly(c, [[0, -10], [6, -13], [0, -3]], '#fde047');
+            poly(c, [[0, -10], [-6, -13], [0, -3]], col);
+            c.strokeStyle = '#475569';
+            c.lineWidth = 0.8;
+            c.beginPath();
+            c.moveTo(0, -3);
+            c.quadraticCurveTo(-3, -1, 1, 0);
+            c.stroke();
+        }
+    };
+
     function drawStore(c, st) {
         const { x, w, top, h, fy } = st;
         const rnd = seeded(st.seed);
@@ -478,35 +799,21 @@
         st.door = [dx, dy, dw, dh];
         st.doorH = dh;
 
-        // shelves of papers either side of the door
+        // shelves of the store's own products either side of the door
+        const product = PRODUCTS[st.name];
         [[gx + 4, dx - 4], [dx + dw + 4, gx + gw - 4]].forEach(([a, b]) => {
             if (b - a < 14) return;
-            [0.38, 0.68].forEach(f => {
+            [0.4, 0.72].forEach(f => {
                 const sy = gy + gh * f;
                 c.fillStyle = '#a16207';
                 c.fillRect(a, sy, b - a, 3);
-                const pw = clamp((b - a) / 3 - 4, 6, 14);
-                for (let j = 0; j < 3; j++) {
-                    const cx = a + (b - a) * (j + 0.5) / 3;
-                    if ((j + Math.floor(rnd() * 2)) % 2) {
-                        const count = 2 + Math.floor(rnd() * 4);
-                        for (let k = 0; k < count; k++) {
-                            c.fillStyle = k % 2 ? '#e2e8f0' : '#ffffff';
-                            c.fillRect(cx - pw * 0.6, sy - (k + 1) * 2.4, pw * 1.2, 2.2);
-                        }
-                    } else {
-                        c.save();
-                        c.translate(cx, sy);
-                        c.rotate((rnd() - 0.5) * 0.3);
-                        c.fillStyle = '#ffffff';
-                        c.fillRect(-pw / 2, -pw * 1.3, pw, pw * 1.3);
-                        c.strokeStyle = '#cbd5e1';
-                        c.lineWidth = 0.8;
-                        c.strokeRect(-pw / 2, -pw * 1.3, pw, pw * 1.3);
-                        c.fillStyle = '#94a3b8';
-                        for (let l = 1; l < 4; l++) c.fillRect(-pw / 2 + 2, -pw * 1.3 + l * pw * 0.3, pw - 4, 0.8);
-                        c.restore();
-                    }
+                const n = b - a > 44 ? 3 : 2, size = clamp((b - a) / n * 1.15, 10, 22);
+                for (let j = 0; j < n; j++) {
+                    c.save();
+                    c.translate(a + (b - a) * (j + 0.5) / n, sy);
+                    c.scale(size / 20, size / 20);
+                    if (product) product(c, rnd);
+                    c.restore();
                 }
             });
         });
@@ -605,6 +912,56 @@
         });
     }
 
+    function updateRider(e, rd, dt, len) {
+        const doorX = st => st.x + st.w / 2;
+        const pickDoor = (level, fromX, fallback) => {
+            // a nearby store on the same side of the atrium (never across the open space)
+            const side = fromX < atrium.x0 ? 0 : fromX > atrium.x1 ? 2 : 1;
+            const sideOf = x => (x < atrium.x0 ? 0 : x > atrium.x1 ? 2 : 1);
+            const list = stores.filter(s => s.level === level && Math.abs(doorX(s) - fromX) < 360 &&
+                (s.x + s.w <= atrium.x0 || s.x >= atrium.x1 ? sideOf(doorX(s)) === side : true));
+            if (!list.length) return fallback;
+            const near = list.sort((a, b) => Math.abs(doorX(a) - fromX) - Math.abs(doorX(b) - fromX)).slice(0, 3);
+            return doorX(near[Math.floor(Math.random() * near.length)]);
+        };
+        const walkTo = target => {
+            const d = target - rd.x, step = 34 * dt;
+            rd.face = d < 0 ? -1 : 1;
+            rd.phase += dt * 6;
+            if (Math.abs(d) <= step) {
+                rd.x = target;
+                return true;
+            }
+            rd.x += Math.sign(d) * step;
+            return false;
+        };
+        if (rd.state === 'approach') {
+            if (rd.wait > 0) {
+                rd.wait -= dt;
+                return;
+            }
+            if (rd.alpha === 0) rd.x = pickDoor(e.k, e.bx, e.bx);           // come out of a store
+            rd.alpha = Math.min(1, rd.alpha + dt * 2.5);
+            if (walkTo(e.bx)) {
+                rd.state = 'ride';
+                rd.u = 0;
+            }
+        } else if (rd.state === 'ride') {
+            rd.u += dt * 28 / len;
+            if (rd.u >= 1) {
+                rd.state = 'exit';
+                rd.x = e.tx;
+                rd.target = pickDoor(e.k + 1, e.tx, e.tx + (e.tx < W / 2 ? -40 : 40));
+            }
+        } else if (walkTo(rd.target)) {
+            rd.alpha = Math.max(0, rd.alpha - dt * 2.5);                     // into the store
+            if (rd.alpha === 0) {
+                rd.state = 'approach';
+                rd.wait = 0.5 + Math.random() * 2;
+            }
+        }
+    }
+
     function drawEscalator(c, e, dt) {
         const dx = e.tx - e.bx, dy = e.ty - e.by, len = Math.hypot(dx, dy);
         const dir = Math.sign(dx);
@@ -617,11 +974,23 @@
             const px = e.bx + dx * u, py = e.by + dy * u;
             line(c, px, py, px + dir * 7, py);
         }
-        // riders
-        e.riders = e.riders || [0, 0.5].map((u, j) => ({ u, p: makePerson(seeded(e.k * 31 + j + 3), e.k * 2 + j + 2) }));
+        // riders: walk out of a store downstairs, ride up, step off and walk into a store upstairs
+        e.riders = e.riders || [
+            { state: 'ride', u: 0.45, alpha: 1, wait: 0 },
+            { state: 'approach', u: 0, alpha: 0, wait: 0.5 }
+        ].map((rd, j) => ({ ...rd, x: e.bx, phase: 0, p: makePerson(seeded(e.k * 31 + j + 3), e.k * 2 + j + 2) }));
         e.riders.forEach(rd => {
-            rd.u = (rd.u + dt * 28 / len) % 1;
-            drawPerson(c, rd.p, e.bx + dx * rd.u, e.by + dy * rd.u - 1, personScale, dir, 0, 'stand');
+            updateRider(e, rd, dt, len);
+            if (rd.alpha <= 0) return;
+            c.save();
+            c.globalAlpha = rd.alpha;
+            if (rd.state === 'ride') {
+                drawPerson(c, rd.p, e.bx + dx * rd.u, e.by + dy * rd.u - 1, personScale, dir, 0, 'stand');
+            } else {
+                const fy = rd.state === 'approach' ? e.by : e.ty;
+                drawPerson(c, rd.p, rd.x, fy - 1, personScale, rd.face || dir, rd.phase, 'walk');
+            }
+            c.restore();
         });
         // glass balustrade and black handrail
         c.fillStyle = 'rgba(191,219,254,0.4)';
@@ -1035,7 +1404,7 @@
         busy = false;
         askBox.hidden = true;
         answerBox.hidden = false;
-        answerSub.textContent = `I checked ${n} stores for “${q}” in 5 seconds. Every one of them only sells sections of a paper.`;
+        answerSub.textContent = `I checked ${n} stores for “${q}”. Every single one sells papers.`;
         popIn();
     }
 
@@ -1068,7 +1437,10 @@
         const bw = el.offsetWidth, bh = el.offsetHeight;
         const left = large ? (vw - bw) / 2 : clamp(A.x - bw / 2, 12, vw - bw - 12);
         let top = headY - bh - 16;
-        if (large && !mobile) top = Math.max(12, Math.min((vh - bh) / 2, top));   // middle of the screen
+        // desktop: centred above the rink so the bio stays visible
+        const above = large && !mobile;
+        if (above) top = Math.max(8, rink.y - bh - 14);
+        el.classList.toggle('no-tail', above);
         el.style.left = left + 'px';
         el.style.top = top + 'px';
         el.style.setProperty('--tail-x', clamp(A.x - left, 24, bw - 24) + 'px');
