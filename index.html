@@ -52,7 +52,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -94,11 +94,12 @@
     <div class="agent-status" id="agent-status" hidden></div>
     <div class="agent-bubble" id="agent-bubble" aria-live="polite" hidden>
         <div class="bubble-ask">
-            <p>Hi! I'm a shopping agent. What do you want?</p>
+            <p class="bubble-q">Hi! I'm your shopping agent. What do you want?</p>
             <form id="agent-form">
                 <input id="agent-input" type="text" maxlength="60" autocomplete="off" placeholder="e.g. running shoes under $100" aria-label="What do you want to buy?">
                 <button type="submit">Go</button>
             </form>
+            <button type="button" class="bubble-dismiss">Just browsing</button>
         </div>
         <div class="bubble-answer" hidden>
             <p class="bubble-main">Sorry, this guy has only papers. Nothing to actually buy here.</p>
@@ -106,9 +107,11 @@
             <div class="bubble-actions">
                 <a href="research.html">See the papers</a>
                 <button type="button" id="agent-again">Ask again</button>
+                <button type="button" class="bubble-dismiss">Close</button>
             </div>
         </div>
     </div>
-    <script src="mall.js?v=2" defer></script>
+    <button type="button" class="agent-chip" id="agent-chip" hidden>Need something?</button>
+    <script src="mall.js?v=3" defer></script>
 </body>
 </html>
