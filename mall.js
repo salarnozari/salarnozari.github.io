@@ -20,19 +20,81 @@
     const status = document.getElementById('agent-status');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const STORES = ['Candy Shop', 'Hot Sauce', 'Sneakers', 'Toy Store', 'Coffee', 'Gadgets',
-        'Pet Shop', 'Flowers', 'Cheese', 'Perfume', 'Bakery', 'Ice Cream', 'Vinyl Records',
-        'Tea House', 'Pizza', 'Hats', 'Socks', 'Chocolate', 'Jewelry', 'Games', 'Plants',
-        'Sunglasses', 'Popcorn', 'Kites'];
     const POPS = ['only papers', 'papers?!', 'more papers', 'just PDFs', 'a footnote',
         'an appendix', 'papers again', 'nope', 'Table 3', 'a draft'];
     const SEARCH_MS = 5000, INSIDE_MS = 320, RETURN_MS = 900;
     const COL = {
-        floor: '#f6f5f3', dot: 'rgba(28,25,23,0.06)', store: '#ffffff', wall: '#e4e1dd',
-        front: '#c9c5c0', label: '#8a847e', ice: '#eef5f9', iceEdge: '#cfe0ea',
+        floor: '#f6f5f3', dot: 'rgba(28,25,23,0.06)', store: '#f1efeb', wall: '#dcd7d1',
+        front: '#cdc8c1', jamb: '#b8b1a9', fix: '#e3dfd9', rack: '#d9d4cd', plant: '#cdd6c9',
+        corner: '#e9e6e2', ice: '#eef5f9', iceEdge: '#cfe0ea',
         ink: '#1c1917', accent: '#2563eb', skater: '#475569', trail: '100,140,170'
     };
-    const PEOPLE = ['#b5ada6', '#9aa8b8', '#d2b8a6', '#a3bcab', '#b9adc9', '#cdb791'];
+    const JACKETS = ['#8fa3b8', '#c49a8a', '#9bb5a0', '#b7a6c9', '#d4b483', '#7d8a99', '#c7a1a8', '#a8b3a0'];
+    const HAIR = ['#2f2a26', '#5a4636', '#8a6a4a', '#c9a46a', '#1f1f1f', '#6b4a3a'];
+    const SKIN = ['#f1d3b8', '#e8c4a0', '#d4a37c', '#a87452', '#7a4f35'];
+
+    function makePerson(rnd, i) {
+        const pick = arr => arr[Math.floor(rnd() * arr.length)];
+        return {
+            jacket: JACKETS[i % JACKETS.length], hair: pick(HAIR), skin: pick(SKIN),
+            pants: pick(['#3f3a36', '#4b5563', '#57534e', '#334155']),
+            hat: rnd() < 0.25 ? pick(JACKETS) : null, bag: rnd() < 0.35 ? pick(['#e7d8c3', '#d6d3d1', '#c9b8a6']) : null
+        };
+    }
+
+    function drawPerson(c, p, x, y, ang, phase, mode, size) {
+        const swing = mode === 'stand' ? 0 : Math.sin(phase);
+        c.save();
+        c.translate(x, y);
+        c.scale(size, size);
+        c.fillStyle = 'rgba(28,25,23,0.10)';
+        c.beginPath();
+        c.ellipse(1.2, 1.8, 5.5, 8.5, ang, 0, Math.PI * 2);
+        c.fill();
+        c.rotate(ang);
+        const stride = mode === 'skate' ? 5.5 : 4;
+        c.fillStyle = p.pants;
+        [[1, 2.6], [-1, -2.6]].forEach(([k, side]) => {
+            c.beginPath();
+            c.ellipse(k * swing * stride + 1, side, 2.6, 1.5, 0, 0, Math.PI * 2);
+            c.fill();
+        });
+        const reach = mode === 'skate' ? 11 : 8.2;
+        c.fillStyle = p.jacket;
+        [[-1, 1], [1, -1]].forEach(([k, side]) => {
+            const hx = mode === 'skate' ? 0.5 : k * swing * 3;
+            c.strokeStyle = p.jacket;
+            c.lineWidth = 2.6;
+            c.lineCap = 'round';
+            line(c, 0, side * 5.5, hx, side * reach);
+            c.fillStyle = p.skin;
+            circle(c, hx, side * reach, 1.5);
+        });
+        if (p.bag && mode !== 'skate') {
+            c.fillStyle = p.bag;
+            c.fillRect(-3 * swing - 2, 9.6, 4.5, 3.4);
+        }
+        c.fillStyle = p.jacket;
+        c.beginPath();
+        c.ellipse(0, 0, 3.8, 7.2, 0, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = 'rgba(255,255,255,0.12)';
+        c.beginPath();
+        c.ellipse(0.8, 0, 2, 5.6, 0, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = p.skin;
+        circle(c, 1.3, 0, 3.6);
+        c.fillStyle = p.hat || p.hair;
+        c.beginPath();
+        c.arc(1.3, 0, 3.8, p.hat ? 0 : Math.PI * 0.6, p.hat ? Math.PI * 2 : Math.PI * 1.4);
+        if (!p.hat) c.ellipse(0.4, 0, 3, 3.6, 0, Math.PI * 1.4, Math.PI * 0.6, true);
+        c.fill();
+        if (p.hat) {
+            c.fillStyle = 'rgba(255,255,255,0.7)';
+            circle(c, 1.3, 0, 1.2);
+        }
+        c.restore();
+    }
 
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -66,15 +128,6 @@
         c.beginPath();
         c.arc(x, y, r, 0, Math.PI * 2);
         c.fill();
-    }
-
-    function fitText(c, text, maxW, size) {
-        let fs = size;
-        c.font = `500 ${fs}px Inter, sans-serif`;
-        while (c.measureText(text).width > maxW && fs > 7) {
-            fs -= 0.5;
-            c.font = `500 ${fs}px Inter, sans-serif`;
-        }
     }
 
     function loopPoint(L, t, lane) {
@@ -142,9 +195,10 @@
             const sw = horizontal ? step : w, sh = horizontal ? h : step;
             const fx = out.x > 0 ? sx + sw : out.x < 0 ? sx : sx + sw / 2;
             const fy = out.y > 0 ? sy + sh : out.y < 0 ? sy : sy + sh / 2;
+            const n0 = stores.length;
             stores.push({
                 x: sx, y: sy, w: sw, h: sh, out, door: { x: fx, y: fy },
-                name: STORES[stores.length % STORES.length], glow: 0
+                kind: (n0 * 3) % 5, plant: (n0 * 7) % 5 === 2, glow: 0
             });
         }
     }
@@ -210,29 +264,10 @@
         }
 
         corners.forEach(k => {
-            c.fillStyle = COL.wall;
+            c.fillStyle = COL.corner;
             c.fillRect(k.x, k.y, k.w, k.h);
         });
-        stores.forEach(st => {
-            c.fillStyle = COL.store;
-            c.fillRect(st.x, st.y, st.w, st.h);
-            c.strokeStyle = COL.wall;
-            c.lineWidth = 1;
-            c.strokeRect(st.x + 0.5, st.y + 0.5, st.w - 1, st.h - 1);
-            const horizontal = st.out.y !== 0;
-            const len = horizontal ? st.w : st.h, dw = Math.min(36, len * 0.3);
-            c.strokeStyle = COL.front;
-            c.lineWidth = 2;
-            const { x: dx, y: dy } = st.door;
-            if (horizontal) {
-                line(c, st.x + 6, dy, dx - dw / 2, dy);
-                line(c, dx + dw / 2, dy, st.x + st.w - 6, dy);
-            } else {
-                line(c, dx, st.y + 6, dx, dy - dw / 2);
-                line(c, dx, dy + dw / 2, dx, st.y + st.h - 6);
-            }
-            drawLabel(c, st, COL.label);
-        });
+        stores.forEach(st => drawStore(c, st));
 
         c.save();
         c.shadowColor = 'rgba(28,25,23,0.08)';
@@ -252,16 +287,85 @@
         c.stroke();
     }
 
-    function drawLabel(c, st, color) {
-        const text = st.name.toUpperCase();
-        fitText(c, text, st.w - 20, 10.5);
-        if ('letterSpacing' in c) c.letterSpacing = '1.5px';
-        c.textAlign = 'center';
-        c.textBaseline = 'middle';
-        c.fillStyle = color;
-        const shift = 6;
-        c.fillText(text, st.x + st.w / 2 - st.out.x * shift, st.y + st.h / 2 - st.out.y * shift);
-        if ('letterSpacing' in c) c.letterSpacing = '0px';
+    function storeFrame(st) {
+        const horizontal = st.out.y !== 0;
+        const l = horizontal ? st.w : st.h, d = horizontal ? st.h : st.w;
+        if (st.out.y > 0) return { m: [1, 0, 0, -1, st.x, st.y + st.h], l, d };
+        if (st.out.y < 0) return { m: [1, 0, 0, 1, st.x, st.y], l, d };
+        if (st.out.x > 0) return { m: [0, 1, -1, 0, st.x + st.w, st.y], l, d };
+        return { m: [0, 1, 1, 0, st.x, st.y], l, d };
+    }
+
+    const doorWidth = l => clamp(0.3 * l, 28, 44);
+
+    function drawStore(c, st) {
+        const { m, l, d } = storeFrame(st);
+        c.save();
+        c.transform(...m);
+        c.fillStyle = COL.store;
+        c.fillRect(0, 0, l, d);
+        c.fillStyle = COL.wall;
+        c.fillRect(0, d - 4, l, 4);
+        c.fillRect(0, 0, 1.5, d);
+        c.fillRect(l - 1.5, 0, 1.5, d);
+
+        const v0 = 0.28 * d, v1 = d - 12, u0 = 8, u1 = l - 8, vm = (v0 + v1) / 2;
+        c.fillStyle = COL.fix;
+        if (st.kind === 0) {
+            const n = mobile || l < 130 ? 3 : 4, len = Math.min(0.45 * d, v1 - v0);
+            for (let i = 0; i < n; i++) {
+                rr(c, l * (i + 1) / (n + 1) - 2.5, v1 - len, 5, len, 2);
+                c.fill();
+            }
+        } else if (st.kind === 1) {
+            c.fillRect(u0, v1 - 5, u1 - u0, 5);
+            rr(c, l / 2 - 0.16 * l, vm - 0.09 * d - 3, 0.32 * l, 0.18 * d, 3);
+            c.fill();
+        } else if (st.kind === 2) {
+            c.fillRect(l / 2 - 0.25 * l, v1 - 6, 0.5 * l, 6);
+            const r = clamp(0.06 * Math.min(l, d), 4, 7), n = mobile ? 3 : 4;
+            for (let i = 0; i < n; i++) circle(c, l * (i + 1) / (n + 1), i % 2 ? v0 + r + 2 : v1 - 6 - r - 8, r);
+        } else if (st.kind === 3) {
+            c.fillRect(u0, v1 - 4, u1 - u0, 4);
+            c.strokeStyle = COL.rack;
+            c.lineWidth = 1.5;
+            [l / 3, 2 * l / 3].forEach(u => {
+                c.beginPath();
+                c.arc(u, vm - 2, 8, 0, Math.PI * 2);
+                c.stroke();
+            });
+        } else {
+            [[0.3, 0], [0.5, 5], [0.7, 0]].forEach(([f, dv]) => c.fillRect(l * f - 4.5, vm - 6 + dv, 9, 9));
+        }
+        if (st.plant) {
+            c.fillStyle = COL.plant;
+            circle(c, u1 - 2, v0 + 2, 4);
+        }
+        drawFront(c, l, COL.front, COL.jamb, 1);
+        c.restore();
+    }
+
+    function drawFront(c, l, glass, jamb, width) {
+        const dw = doorWidth(l), a = l / 2 - dw / 2, b = l / 2 + dw / 2;
+        c.strokeStyle = glass;
+        c.lineWidth = width;
+        line(c, 0, 0.5, a, 0.5);
+        line(c, b, 0.5, l, 0.5);
+        c.strokeStyle = jamb;
+        c.lineWidth = 2;
+        line(c, a, 0, a, 6);
+        line(c, b, 0, b, 6);
+    }
+
+    function drawVisit(c, st) {
+        const { m, l, d } = storeFrame(st);
+        c.save();
+        c.globalAlpha = st.glow;
+        c.transform(...m);
+        c.fillStyle = 'rgba(37,99,235,0.08)';
+        c.fillRect(1.5, 0, l - 3, d - 4);
+        drawFront(c, l, COL.accent, COL.accent, 1.5);
+        c.restore();
     }
 
     function buildPeople() {
@@ -269,12 +373,13 @@
         const nw = clamp(Math.round(perimeter(loop) / (mobile ? 110 : 90)), 4, 22);
         walkers = Array.from({ length: nw }, (_, i) => ({
             t: (i + rnd() * 0.7) / nw, lane: (rnd() - 0.5) * (mobile ? 18 : 30), speed: 22 + rnd() * 16,
-            dir: rnd() < 0.5 ? -1 : 1, pause: 0, color: PEOPLE[i % PEOPLE.length]
+            dir: rnd() < 0.5 ? -1 : 1, pause: 0, phase: rnd() * 6, ang: 0, p: makePerson(rnd, i)
         }));
         const ns = clamp(Math.round(perimeter(track) / 220), 3, 9);
         if (skaters.length !== ns) {
             skaters = Array.from({ length: ns }, (_, i) => ({
-                t: i / ns + rnd() * 0.04, lane: (rnd() - 0.5) * 10, speed: 55 + rnd() * 45, hist: []
+                t: i / ns + rnd() * 0.04, lane: (rnd() - 0.5) * 10, speed: 55 + rnd() * 45, hist: [],
+                phase: rnd() * 6, p: makePerson(rnd, i + 3)
             }));
         }
         skaters.forEach(sk => { sk.hist = []; });
@@ -288,11 +393,13 @@
                 return;
             }
             wk.t += wk.dir * wk.speed * dt / pw;
+            wk.phase += dt * wk.speed * 0.32;
             if (Math.random() < dt * 0.06) wk.pause = 1 + Math.random() * 2.5;
             if (Math.random() < dt * 0.02) wk.dir *= -1;
         });
         skaters.forEach(sk => {
             sk.t += sk.speed * dt / pt;
+            sk.phase += dt * sk.speed * 0.06;
             const p = loopPoint(track, sk.t, sk.lane);
             sk.hist.push({ x: p.x, y: p.y });
             if (sk.hist.length > 26) sk.hist.shift();
@@ -307,17 +414,17 @@
                 c.lineWidth = 1.5;
                 line(c, h[i - 1].x, h[i - 1].y, h[i].x, h[i].y);
             }
-            const p = h[h.length - 1];
-            if (!p) return;
-            c.fillStyle = COL.skater;
-            circle(c, p.x, p.y, 4.5);
+            const p = h[h.length - 1], q = h[h.length - 3];
+            if (!p || !q) return;
+            drawPerson(c, sk.p, p.x, p.y, Math.atan2(p.y - q.y, p.x - q.x), sk.phase, 'skate', mobile ? 1 : 1.3);
         });
         walkers.forEach(wk => {
-            const p = loopPoint(loop, wk.t, wk.lane);
-            c.fillStyle = 'rgba(28,25,23,0.08)';
-            circle(c, p.x + 1, p.y + 1.5, 5);
-            c.fillStyle = wk.color;
-            circle(c, p.x, p.y, 5);
+            const p = loopPoint(loop, wk.t, wk.lane), q = loopPoint(loop, wk.t + wk.dir * 0.003, wk.lane);
+            const target = Math.atan2(q.y - p.y, q.x - p.x);
+            let d = target - wk.ang;
+            d = Math.atan2(Math.sin(d), Math.cos(d));
+            wk.ang += d * 0.2;
+            drawPerson(c, wk.p, p.x, p.y, wk.ang, wk.phase, wk.pause > 0 ? 'stand' : 'walk', mobile ? 1 : 1.3);
         });
     }
 
@@ -635,12 +742,7 @@
         bg.save();
         bg.translate(0, -sy);
         stores.forEach(st => {
-            if (st.glow <= 0) return;
-            bg.globalAlpha = st.glow;
-            bg.fillStyle = 'rgba(37,99,235,0.07)';
-            bg.fillRect(st.x + 1, st.y + 1, st.w - 2, st.h - 2);
-            drawLabel(bg, st, COL.accent);
-            bg.globalAlpha = 1;
+            if (st.glow > 0) drawVisit(bg, st);
         });
         drawPeople(bg);
         bg.restore();
