@@ -293,6 +293,76 @@ h1 {
     color: var(--accent);
 }
 
+.research {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+}
+
+.top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 22px 0 18px;
+    background: var(--paper);
+    border-bottom: 1px solid #e7e5e4;
+}
+
+.top-nav a {
+    color: var(--body);
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.top-nav a:hover {
+    color: var(--accent);
+}
+
+.top-nav span {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+}
+
+.paper {
+    padding: 2.5rem 0;
+    border-bottom: 1px solid #e7e5e4;
+}
+
+.paper:last-child {
+    border-bottom: 0;
+}
+
+.paper h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+}
+
+.paper .coauthors {
+    margin: 0.45rem 0 1.1rem;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+}
+
+.paper p {
+    color: var(--body);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 0.9rem;
+}
+
+.paper p:last-child {
+    margin-bottom: 0;
+}
+
 @media (max-width: 760px) {
     .page {
         justify-content: flex-start;

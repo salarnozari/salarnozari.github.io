@@ -187,40 +187,67 @@
             await sleep(240);
             wires.set(el, wire(el));
         }
-        await sleep(250);
-        lead.status('spawning 6 agents');
-        await sleep(450);
+        const nWriters = 1 + Math.floor(Math.random() * paras.length);
+        const photoAgent = Math.random() < 0.5;
+        const linkerAgent = Math.random() < 0.6;
+        const roles = [
+            ...(photoAgent ? ['photo'] : []), 'profile',
+            ...Array.from({ length: nWriters }, (_, i) => nWriters > 1 ? `writer ${i + 1}` : 'writer'),
+            'checker', ...(linkerAgent ? ['linker'] : [])
+        ];
+        const size = document.getElementById('team-size');
+        if (size) size.textContent = roles.length + 1;
 
-        const roles = ['profile', 'writer 1', 'writer 2', 'writer 3', 'checker', 'linker'];
+        await sleep(250);
+        lead.status(`spawning ${roles.length} agents`);
+        await sleep(450);
         const team = {};
         for (const r of roles) {
             team[r] = spawn(r, lead.x, lead.y);
             await sleep(90);
         }
+        const writers = roles.filter(r => r.startsWith('writer')).map(r => team[r]);
+        const linker = team.linker || team.checker;
+
         lead.status('delegating');
         const pb = box(photo);
         go(team.profile, pb.x - 30, pb.y + pb.h / 2 + 40);
-        paras.forEach((p, i) => {
-            const b = box(p);
-            go(team[`writer ${i + 1}`], b.x, b.y + 14);
+        if (team.photo) go(team.photo, pb.x - 40, pb.y + 10);
+        writers.forEach((a, i) => {
+            const b = box(paras[i]);
+            go(a, b.x, b.y + 14);
         });
         const bio = box(paras[0].parentElement);
         go(team.checker, edge(bio.x + bio.w + 24), bio.y + bio.h * 0.45);
-        go(team.linker, edge(bio.x + bio.w + 24), bio.y + bio.h * 0.75);
         team.checker.status('waiting');
-        team.linker.status('waiting');
+        if (team.linker) {
+            go(team.linker, edge(bio.x + bio.w + 24), bio.y + bio.h * 0.75);
+            team.linker.status('waiting');
+        }
         await sleep(700);
         go(lead, edge(c.x + c.w + 10), c.y - 24);
         lead.status('monitoring');
 
-        const profileJob = (async () => {
-            const a = team.profile;
+        const photoJob = (async () => {
+            const a = team.photo || team.profile;
             a.status('placing photo');
             await Promise.race([go(a, pb.x + pb.w / 2 - 46, pb.y + pb.h / 2 + 34), sleep(500)]);
             photo.classList.remove('pending');
             await go(a, pb.x + pb.w / 2, pb.y + pb.h / 2);
             clearWire(wires.get(photo.parentElement));
-            await sleep(250);
+            if (team.photo) {
+                a.status('reporting');
+                await sleep(400);
+                leave(a, lead.x, lead.y);
+            } else {
+                await sleep(250);
+            }
+        })();
+
+        const profileJob = (async () => {
+            const a = team.profile;
+            if (!team.photo) await photoJob;
+            else await sleep(300);
             a.status('writing');
             await type(tName, a, 26);
             finish(tName);
@@ -235,24 +262,34 @@
             leave(a, lead.x, lead.y);
         })();
 
+        const paraDone = paras.map(() => {
+            let resolve;
+            const p = new Promise(r => { resolve = r; });
+            p.resolve = resolve;
+            return p;
+        });
         let typoSpan = null;
-        const writerJobs = tPara.map(async (t, i) => {
-            const a = team[`writer ${i + 1}`];
-            await sleep(500 + i * 220);
-            a.status('writing');
-            await type(t, a, 78 + i * 6, i === 1 ? TYPO : null);
-            a.status('done');
-            if (i === 1) typoSpan = markTypo(t);
-            else {
-                finish(t);
-                clearWire(wires.get(paras[i]));
+        const writerJobs = writers.map(async (a, w) => {
+            const mine = paras.map((_, i) => i).filter(i => i % nWriters === w);
+            const cps = 80 * (1 + 0.6 * (mine.length - 1));
+            await sleep(500 + w * 220);
+            for (const i of mine) {
+                a.status(mine.length > 1 ? `writing ${mine.indexOf(i) + 1}/${mine.length}` : 'writing');
+                await type(tPara[i], a, cps + w * 6, i === 1 ? TYPO : null);
+                if (i === 1) typoSpan = markTypo(tPara[i]);
+                else {
+                    finish(tPara[i]);
+                    clearWire(wires.get(paras[i]));
+                }
+                paraDone[i].resolve();
             }
+            a.status('reporting');
             await sleep(400);
             leave(a, lead.x, lead.y);
         });
 
         const checkJob = (async () => {
-            await writerJobs[1];
+            await paraDone[1];
             const a = team.checker;
             a.status('reviewing');
             if (typoSpan) {
@@ -269,14 +306,17 @@
             }
             finish(tPara[1]);
             clearWire(wires.get(paras[1]));
-            a.status('done');
-            await sleep(300);
-            leave(a, lead.x, lead.y);
+            if (team.linker) {
+                a.status('done');
+                await sleep(300);
+                leave(a, lead.x, lead.y);
+            }
         })();
 
         const linkJob = (async () => {
-            const a = team.linker;
-            const batches = [[writerJobs[0], paras[0]], [profileJob, emailBox]];
+            const a = linker;
+            const batches = [[paraDone[0], paras[0]], [profileJob, emailBox]];
+            if (!team.linker) await checkJob;
             for (const [job, scope] of batches) {
                 await job;
                 a.status('linking');
@@ -293,7 +333,7 @@
             await leave(a, lead.x, lead.y);
         })();
 
-        await Promise.all([profileJob, ...writerJobs, checkJob, linkJob]);
+        await Promise.all([photoJob, profileJob, ...writerJobs, checkJob, linkJob]);
         root.classList.remove('links-pending');
         lead.status('done');
         await sleep(700);
