@@ -348,6 +348,30 @@ h1 {
     animation: lili-b 0.3s infinite;
 }
 
+.lili.run .w0 {
+    animation-duration: 0.16s;
+}
+
+.lili.run .w1 {
+    animation-duration: 0.16s;
+}
+
+.ball {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.ball svg {
+    display: block;
+}
+
+.ball.gone {
+    opacity: 0;
+}
+
 .lili.wag .k0 {
     animation: lili-a 0.2s infinite;
 }

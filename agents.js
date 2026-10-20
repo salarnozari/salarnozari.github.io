@@ -282,7 +282,6 @@
         }
         scene.classList.remove('flash');
         const writers = roles.filter(r => r.startsWith('writer')).map(r => team[r]);
-        const linker = team.linker || team.checker;
 
         lead.status('delegating');
         const pb = box(photo);
@@ -347,7 +346,7 @@
         const chars = tPara.map(t => t.texts.join('').length);
         const longest = Math.max(...chars);
         const writerJobs = writers.map(async (a, w) => {
-            const mine = paras.map((_, i) => i).filter(i => i % nWriters === w);
+            const mine = paras.map((_, i) => i).filter(i => i % nWriters === w).sort((i, j) => (i === 1) - (j === 1));
             const cps = 80 * mine.reduce((s, i) => s + chars[i], 0) / longest;
             await sleep(500 + w * 220);
             for (const i of mine) {
@@ -365,9 +364,18 @@
             leave(a, lap().x, lap().y);
         });
 
-        const checkJob = (async () => {
-            await paraDone[1];
-            const a = team.checker;
+        const linkBatch = async (a, scope) => {
+            a.status('linking');
+            for (const link of scope.querySelectorAll('a')) {
+                const r = box(link);
+                await Promise.race([go(a, r.x + r.w, r.y + r.h - 2), sleep(650)]);
+                link.classList.add('linked');
+                await sleep(180);
+            }
+            a.status('waiting');
+        };
+
+        const checkTypo = async a => {
             a.status('reviewing');
             if (typoSpan) {
                 const r = box(typoSpan);
@@ -383,32 +391,31 @@
             }
             finish(tPara[1]);
             clearWire(wires.get(paras[1]));
-            if (team.linker) {
-                a.status('done');
-                await sleep(300);
-                leave(a, lap().x, lap().y);
-            }
-        })();
+        };
 
-        const linkJob = (async () => {
-            const a = linker;
-            const batches = [[paraDone[0], paras[0]], [profileJob, emailBox]];
-            if (!team.linker) await checkJob;
-            for (const [job, scope] of batches) {
-                await job;
-                a.status('linking');
-                for (const link of scope.querySelectorAll('a')) {
-                    const r = box(link);
-                    await Promise.race([go(a, r.x + r.w, r.y + r.h - 2), sleep(650)]);
-                    link.classList.add('linked');
-                    await sleep(180);
-                }
-                a.status('waiting');
+        const batches = [[paraDone[0], paras[0]], [profileJob, emailBox]];
+        const work = (a, tasks) => (async () => {
+            const ready = [];
+            let wake = () => {};
+            tasks.forEach(([job, fn]) => job.then(() => {
+                ready.push(fn);
+                wake();
+            }));
+            for (let n = 0; n < tasks.length; n++) {
+                while (!ready.length) await new Promise(r => { wake = r; });
+                await ready.shift()();
             }
             a.status('done');
             await sleep(300);
             await leave(a, lap().x, lap().y);
         })();
+        const linkTasks = a => batches.map(([job, scope]) => [job, () => linkBatch(a, scope)]);
+
+        const checkJob = work(team.checker, [
+            [paraDone[1], () => checkTypo(team.checker)],
+            ...(team.linker ? [] : linkTasks(team.checker))
+        ]);
+        const linkJob = team.linker ? work(team.linker, linkTasks(team.linker)) : Promise.resolve();
 
         await Promise.all([photoJob, profileJob, ...writerJobs, checkJob, linkJob]);
         root.classList.remove('links-pending');
@@ -466,56 +473,188 @@
             dogFrame('stand', 0, 'k0') + dogFrame('stand', 1, 'k1') + dogFrame('a', 1, 'w0') + dogFrame('b', 0, 'w1')
         }</svg><span class="say">Bark bark! Lili is happy you're here!</span>`;
         layer.appendChild(el);
+        const svg = el.querySelector('svg');
         const say = el.querySelector('.say');
+        const HELLO = say.textContent;
+        const me = { x: 0, y: 0, left: false };
+        let job = 0;
+        let home = true;
+        let ball = null;
+        let carrying = false;
+
         const spot = () => {
             const r = pixel.getBoundingClientRect();
             return { x: Math.max(window.scrollX + 6, r.left + window.scrollX - 98), y: r.top + window.scrollY + 88 - 48 };
         };
-        const fit = x => {
+        const fit = () => {
             const w = say.offsetWidth;
-            const head = 81;
-            const left = Math.min(Math.max(head + 20 - w, 8 - x), document.documentElement.clientWidth - 8 - w - x);
+            const head = me.left ? 15 : 81;
+            const want = me.left ? head - 20 : head + 20 - w;
+            const left = Math.min(Math.max(want, window.scrollX + 8 - me.x), window.scrollX + document.documentElement.clientWidth - 8 - w - me.x);
             say.style.left = left + 'px';
             say.style.setProperty('--tip', head - left + 'px');
         };
-        const put = p => {
-            el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
-            fit(p.x);
+        const mouth = () => ({ x: me.x + (me.left ? 0 : 84), y: me.y + 12 });
+        const setBall = (x, y) => { ball.style.transform = `translate3d(${x}px, ${y}px, 0)`; };
+        const put = (x, y) => {
+            me.x = x;
+            me.y = y;
+            el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+            svg.style.transform = me.left ? 'scaleX(-1)' : '';
+            if (carrying) setBall(mouth().x, mouth().y);
+            if (say.classList.contains('on')) fit();
         };
-        const wag = async (ms, talk) => {
+        const talk = text => {
+            say.textContent = text;
+            say.classList.add('on');
+            fit();
+        };
+        const hush = () => say.classList.remove('on');
+        const wag = async (ms, text) => {
+            const id = job;
             el.classList.add('wag');
-            if (talk) say.classList.add('on');
+            if (text) talk(text);
             await sleep(ms);
+            if (id !== job) return;
             el.classList.remove('wag');
+            if (text) hush();
+        };
+        const stand = (x, y, left) => {
+            const vw = document.documentElement.clientWidth;
+            return {
+                x: Math.min(Math.max(x - (left ? 6 : 90), window.scrollX + 4), window.scrollX + vw - 100),
+                y: Math.max(y - 40, 4)
+            };
+        };
+
+        const move = (x, y, speed, run) => new Promise(resolve => {
+            const id = job;
+            const sx = me.x, sy = me.y;
+            const d = Math.hypot(x - sx, y - sy);
+            if (Math.abs(x - sx) > 2) me.left = x < sx;
+            if (d < 2) return resolve(true);
+            el.classList.remove('wag');
+            el.classList.add('walk');
+            el.classList.toggle('run', !!run);
+            const t0 = performance.now();
+            const step = now => {
+                if (id !== job) return resolve(false);
+                const k = Math.min(1, (now - t0) / 1000 * speed / d);
+                put(sx + (x - sx) * k, sy + (y - sy) * k);
+                if (k < 1) return requestAnimationFrame(step);
+                el.classList.remove('walk', 'run');
+                resolve(true);
+            };
+            requestAnimationFrame(step);
+        });
+
+        const come = async (x, y) => {
+            job++;
+            home = false;
+            hush();
+            const s = stand(x, y, x < me.x + 48);
+            if (!(await move(s.x, s.y, 150))) return;
+            await wag(2800, carrying ? 'Double-click to throw it again!' : 'Want to play fetch? Double-click!');
+        };
+
+        const fetchBall = async (x, y) => {
+            const id = ++job;
+            home = false;
+            hush();
+            carrying = false;
+            if (ball) ball.remove();
+            ball = document.createElement('div');
+            ball.className = 'ball';
+            ball.innerHTML = '<svg viewBox="0 0 6 6" width="12" height="12" shape-rendering="crispEdges"><path d="M1 0h4v1h1v4h-1v1h-4v-1h-1v-4h1z" fill="#3b2516"/><path d="M1 1h4v4h-4z" fill="#cddc39"/><path d="M1 1h2v1h-2z" fill="#eef5a8"/><path d="M4 4h1v1h-1z" fill="#9e9d24"/></svg>';
+            layer.appendChild(ball);
+            const thrown = ball;
+            const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+            let tx, ty;
+            for (let i = 0; i < 12; i++) {
+                tx = window.scrollX + 40 + Math.random() * (vw - 80);
+                ty = window.scrollY + 70 + Math.random() * (vh - 130);
+                if (Math.hypot(tx - x, ty - y) > 180) break;
+            }
+            const lift = 80 + Math.hypot(tx - x, ty - y) * 0.3;
+            const flight = new Promise(resolve => {
+                const t0 = performance.now();
+                const step = now => {
+                    if (thrown !== ball || carrying) return resolve();
+                    const k = Math.min(1, (now - t0) / 750);
+                    setBall(x - 6 + (tx - x) * k, y - 6 + (ty - y) * k - lift * 4 * k * (1 - k));
+                    if (k < 1) return requestAnimationFrame(step);
+                    resolve();
+                };
+                requestAnimationFrame(step);
+            });
+            el.classList.add('wag');
+            await sleep(250);
+            if (id !== job) return;
+            const s = stand(tx, ty, tx < me.x + 48);
+            if (!(await move(s.x, s.y, 280, true))) return;
+            await flight;
+            if (id !== job) return;
+            me.left = tx < me.x + 48;
+            carrying = true;
+            put(me.x, me.y);
+            await sleep(350);
+            if (id !== job) return;
+            const back = stand(x, y, x < me.x + 48);
+            if (!(await move(back.x, back.y, 220, true))) return;
+            me.left = x < me.x + 48;
+            put(me.x, me.y);
+            carrying = false;
+            const m = mouth();
+            setBall(m.x, me.y + 36);
+            await wag(2600, 'Again? Double-click!');
+            await sleep(1500);
+            if (thrown === ball && !carrying) {
+                thrown.classList.add('gone');
+                setTimeout(() => thrown.remove(), 500);
+                ball = null;
+            }
         };
 
         let p = spot();
         if (still) {
-            put(p);
+            put(p.x, p.y);
         } else {
-            const start = { x: window.scrollX - 110, y: p.y };
-            put(start);
-            await sleep(50);
-            const t = (p.x - start.x) / 95;
-            el.classList.add('walk');
-            el.style.transition = `transform ${t}s linear`;
-            put(p);
-            await sleep(t * 1000);
-            el.style.transition = '';
-            el.classList.remove('walk');
+            put(window.scrollX - 110, p.y);
+            await move(p.x, p.y, 95);
             await sleep(250);
-            await wag(4500, true);
-            say.classList.remove('on');
         }
 
-        window.addEventListener('resize', () => put(spot()));
+        window.addEventListener('resize', () => {
+            if (!home) return;
+            p = spot();
+            put(p.x, p.y);
+        });
         el.addEventListener('mouseenter', () => {
-            if (!el.classList.contains('wag')) wag(2200, true).then(() => say.classList.remove('on'));
+            if (!el.classList.contains('wag') && !el.classList.contains('walk')) wag(2200, HELLO);
         });
         if (still) return;
+
+        let clickTimer = null;
+        const ignore = e => e.button !== 0 || e.target.closest('a');
+        document.addEventListener('mousedown', e => {
+            if (e.detail > 1 && !ignore(e)) e.preventDefault();
+        });
+        document.addEventListener('click', e => {
+            if (ignore(e)) return;
+            clearTimeout(clickTimer);
+            if (e.detail > 1) return;
+            clickTimer = setTimeout(() => come(e.pageX, e.pageY), 260);
+        });
+        document.addEventListener('dblclick', e => {
+            if (ignore(e)) return;
+            clearTimeout(clickTimer);
+            fetchBall(e.pageX, e.pageY);
+        });
+
+        await wag(4500, HELLO);
         for (;;) {
             await sleep(9000 + Math.random() * 7000);
-            if (!document.hidden && !el.classList.contains('wag')) await wag(1400);
+            if (!document.hidden && !el.classList.contains('wag') && !el.classList.contains('walk')) await wag(1400);
         }
     }
 
