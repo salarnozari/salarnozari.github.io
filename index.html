@@ -49,7 +49,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="site.css?v=1">
+    <link rel="stylesheet" href="site.css?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -81,9 +81,12 @@
                 </div>
             </div>
         </div>
-        <p class="credits" id="credits">Assembled live by a team of <span id="team-size">several</span> agents · <button type="button" id="replay">replay</button></p>
+        <div class="scene" id="scene">
+            <div class="pixel" id="pixel" aria-hidden="true"></div>
+            <p class="prompt" id="prompt"></p>
+        </div>
     </main>
     <div class="team" id="team" aria-hidden="true"></div>
-    <script src="agents.js?v=2" defer></script>
+    <script src="agents.js?v=3" defer></script>
 </body>
 </html>

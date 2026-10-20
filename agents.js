@@ -2,9 +2,10 @@
     const root = document.documentElement;
     const card = document.querySelector('.card');
     const layer = document.getElementById('team');
-    const credits = document.getElementById('credits');
-    const replay = document.getElementById('replay');
-    if (!card || !layer || !credits) return;
+    const scene = document.getElementById('scene');
+    const pixel = document.getElementById('pixel');
+    const prompt = document.getElementById('prompt');
+    if (!card || !layer || !scene || !pixel || !prompt) return;
 
     const photo = card.querySelector('.profile-image img');
     const name = card.querySelector('h1');
@@ -20,6 +21,69 @@
         return { x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height };
     };
     const agents = [];
+
+    const HEAD = [
+        '.......h..h.', '.....h.hhhhh', '....hhhhhhhh', '...hhhhhhhhh', '...hhhhhhhhh',
+        '...hhhhsssss', '....hhssssss', '....hhgggggg', '.....sgwegss', '.....sssssss',
+        '......sssshh', '.......sssmm', '........ssss', '....jjjjjjWb', '...jjjjjjjWW',
+        '..jjjjjjjjJW', '..jjjjjjjjjJ', '..jjjjjjjjjj', '..jjjjjjjjjj', '..jjjjjjjjjj',
+        '..jjjjjjjjjj', '..jjjjjjjjjj'
+    ];
+    const PAL = {
+        h: '#2b2420', s: '#c99a74', g: '#1c1917', w: '#f5f5f4', e: '#1c1917', m: '#8e4f3e',
+        j: '#ece3d3', J: '#d9cdb8', W: '#ffffff', b: '#1c1917', L: '#e7e5e4', l: '#a8a29e',
+        a: '#2563eb', d: '#d6d3d1'
+    };
+
+    function pixelArt() {
+        const grid = HEAD.map(r => (r + [...r].reverse().join('')).split(''));
+        while (grid.length < 24) grid.push(new Array(24).fill('.'));
+        for (let y = 14; y <= 21; y++) {
+            for (let x = 5; x <= 18; x++) grid[y][x] = y === 14 || x === 5 || x === 18 ? 'l' : 'L';
+        }
+        grid[17][11] = grid[17][12] = grid[18][11] = grid[18][12] = 'a';
+        for (let x = 0; x < 24; x++) grid[22][x] = 'd';
+        let out = '';
+        grid.forEach((row, y) => {
+            for (let x = 0; x < 24;) {
+                const ch = row[x];
+                let n = 1;
+                while (x + n < 24 && row[x + n] === ch) n++;
+                if (ch !== '.') out += `<rect x="${x}" y="${y}" width="${n}" height="1" fill="${PAL[ch]}"/>`;
+                x += n;
+            }
+        });
+        const hand = (x, cls) => `<rect class="hand ${cls}" x="${x}" y="20" width="2" height="2" fill="${PAL.s}"/>`;
+        return `<svg viewBox="0 0 24 24" width="96" height="96" shape-rendering="crispEdges">${out}${hand(3, 'l')}${hand(19, 'r')}<rect class="glow" x="6" y="15" width="12" height="6" fill="${PAL.a}"/></svg>`;
+    }
+
+    function lap() {
+        const r = pixel.getBoundingClientRect();
+        return { x: r.left + window.scrollX + r.width / 2 - 2, y: r.top + window.scrollY + r.height * 14 / 24 - 6 };
+    }
+
+    async function intro() {
+        const r = scene.getBoundingClientRect();
+        const dx = window.innerWidth / 2 - (r.left + r.width / 2);
+        const dy = window.innerHeight / 2 - (r.top + r.height / 2);
+        scene.style.transform = `translate(${dx}px, ${dy}px) scale(1.25)`;
+        scene.classList.add('on');
+        await sleep(700);
+        const text = 'Make me a website';
+        const caret = document.createElement('span');
+        caret.className = 'caret';
+        const span = document.createElement('span');
+        prompt.replaceChildren(span, caret);
+        for (let i = 1; i <= text.length; i++) {
+            span.textContent = text.slice(0, i);
+            await sleep(text[i - 1] === ' ' ? 150 : 70 + Math.random() * 60);
+        }
+        await sleep(550);
+        caret.remove();
+        prompt.classList.add('sent');
+        scene.classList.add('idle');
+        await sleep(300);
+    }
 
     function spawn(role, x, y, opts = {}) {
         const el = document.createElement('div');
@@ -173,11 +237,19 @@
         photo.classList.add('pending');
         root.classList.add('links-pending');
         root.classList.remove('assemble');
+        await intro();
 
-        const c = box(card);
-        const lead = spawn('orchestrator', c.x + c.w / 2, c.y - 34, { lead: true, speed: 12 });
+        scene.classList.add('flash');
+        let p = lap();
+        const lead = spawn('orchestrator', p.x, p.y, { lead: true, speed: 9 });
         lead.status('planning');
-        await sleep(600);
+        await sleep(500);
+        scene.classList.add('move');
+        scene.style.transform = '';
+        const c = box(card);
+        await Promise.race([go(lead, c.x + c.w / 2, c.y - 34), sleep(900)]);
+        lead.k = 12;
+        scene.classList.remove('flash');
 
         const slots = [photo.parentElement, name, emailBox, ...paras];
         const wires = new Map();
@@ -200,12 +272,15 @@
 
         await sleep(250);
         lead.status(`spawning ${roles.length} agents`);
+        scene.classList.add('flash');
         await sleep(450);
         const team = {};
+        p = lap();
         for (const r of roles) {
-            team[r] = spawn(r, lead.x, lead.y);
-            await sleep(90);
+            team[r] = spawn(r, p.x, p.y);
+            await sleep(110);
         }
+        scene.classList.remove('flash');
         const writers = roles.filter(r => r.startsWith('writer')).map(r => team[r]);
         const linker = team.linker || team.checker;
 
@@ -238,7 +313,7 @@
             if (team.photo) {
                 a.status('reporting');
                 await sleep(400);
-                leave(a, lead.x, lead.y);
+                leave(a, lap().x, lap().y);
             } else {
                 await sleep(250);
             }
@@ -259,7 +334,7 @@
             clearWire(wires.get(emailBox));
             a.status('reporting');
             await sleep(400);
-            leave(a, lead.x, lead.y);
+            leave(a, lap().x, lap().y);
         })();
 
         const paraDone = paras.map(() => {
@@ -285,7 +360,7 @@
             }
             a.status('reporting');
             await sleep(400);
-            leave(a, lead.x, lead.y);
+            leave(a, lap().x, lap().y);
         });
 
         const checkJob = (async () => {
@@ -309,7 +384,7 @@
             if (team.linker) {
                 a.status('done');
                 await sleep(300);
-                leave(a, lead.x, lead.y);
+                leave(a, lap().x, lap().y);
             }
         })();
 
@@ -330,21 +405,26 @@
             }
             a.status('done');
             await sleep(300);
-            await leave(a, lead.x, lead.y);
+            await leave(a, lap().x, lap().y);
         })();
 
         await Promise.all([photoJob, profileJob, ...writerJobs, checkJob, linkJob]);
         root.classList.remove('links-pending');
         lead.status('done');
         await sleep(700);
-        await leave(lead, lead.x + 20, lead.y - 20);
-        credits.classList.add('on');
+        await leave(lead, lap().x, lap().y);
+        prompt.classList.remove('sent');
+        prompt.textContent = `Created by a team of ${roles.length + 1} agents`;
+        prompt.classList.add('credit');
     }
 
     function showAll() {
         root.classList.remove('assemble', 'links-pending');
         photo.classList.remove('pending');
-        credits.classList.add('on');
+        scene.style.transform = '';
+        scene.classList.add('on', 'idle');
+        prompt.textContent = 'Created by a team of agents';
+        prompt.classList.add('credit');
     }
 
     function visible(r) {
@@ -410,7 +490,7 @@
         }
     }
 
-    if (replay) replay.addEventListener('click', () => window.location.reload());
+    pixel.innerHTML = pixelArt();
 
     if (reduce) {
         showAll();

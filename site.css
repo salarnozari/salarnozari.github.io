@@ -266,31 +266,83 @@ h1 {
     opacity: 1;
 }
 
-.credits {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
+.scene {
+    display: flex;
+    align-items: center;
+    gap: 14px;
     opacity: 0;
-    transition: opacity 0.6s ease;
+    transition: opacity 0.5s ease;
 }
 
-.credits.on {
+.scene.on {
     opacity: 1;
 }
 
-.credits button {
+.scene.move {
+    transition: opacity 0.5s ease, transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.pixel svg {
+    display: block;
+    image-rendering: pixelated;
+}
+
+.hand {
+    animation: tap 0.22s steps(1) infinite;
+}
+
+.hand.r {
+    animation-delay: 0.11s;
+}
+
+.idle .hand {
+    animation: none;
+}
+
+@keyframes tap {
+    50% { transform: translateY(-1px); }
+}
+
+.glow {
+    opacity: 0;
+}
+
+.flash .glow {
+    animation: glow 0.3s steps(2) infinite;
+}
+
+@keyframes glow {
+    50% { opacity: 0.85; }
+}
+
+.prompt {
+    min-width: 19ch;
+    padding: 7px 11px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #ffffff;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink);
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
+
+.prompt:empty::before {
+    content: '\00a0';
+}
+
+.prompt.sent {
+    color: var(--muted);
+}
+
+.prompt.credit {
+    min-width: 0;
     padding: 0;
     border: 0;
     background: none;
-    color: var(--ink);
-    font: inherit;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    cursor: pointer;
-}
-
-.credits button:hover {
-    color: var(--accent);
+    font-size: 11px;
+    color: var(--muted);
 }
 
 .research {
