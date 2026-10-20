@@ -43,57 +43,116 @@
     }
 
     function drawPerson(c, p, x, y, ang, phase, mode, size) {
-        const swing = mode === 'stand' ? 0 : Math.sin(phase);
+        const vx = Math.cos(ang), vy = Math.sin(ang);
+        const side = Math.abs(vx) > Math.abs(vy) * 0.8;
+        const view = side ? 'side' : vy > 0 ? 'front' : 'back';
+        const moving = mode !== 'stand', skate = mode === 'skate';
+        const sw = moving ? Math.sin(phase) : 0;
+        const bob = moving && !skate ? Math.abs(Math.cos(phase)) * 0.8 : 0;
         c.save();
         c.translate(x, y);
-        c.scale(size, size);
-        c.fillStyle = 'rgba(28,25,23,0.10)';
+        c.scale(size * (side && vx < 0 ? -1 : 1), size);
+        c.fillStyle = 'rgba(28,25,23,0.12)';
         c.beginPath();
-        c.ellipse(1.2, 1.8, 5.5, 8.5, ang, 0, Math.PI * 2);
+        c.ellipse(0, 0, 7, 2.2, 0, 0, Math.PI * 2);
         c.fill();
-        c.rotate(ang);
-        const stride = mode === 'skate' ? 5.5 : 4;
-        c.fillStyle = p.pants;
-        [[1, 2.6], [-1, -2.6]].forEach(([k, side]) => {
+        if (skate) c.rotate(side ? 0.16 : 0);
+        c.translate(0, -bob);
+        c.lineCap = 'round';
+        c.lineJoin = 'round';
+
+        const hipY = -12, legW = 3.2;
+        c.strokeStyle = p.pants;
+        c.lineWidth = legW;
+        const stride = side ? (skate ? 5 : 3.6) : 0;
+        [[-1, 1], [1, -1]].forEach(([k, o]) => {
+            const fx = side ? k * sw * stride : o * 2.2;
+            const lift = side ? 0 : Math.max(0, k * sw) * 2.2;
+            line(c, side ? 0 : o * 1.8, hipY, fx, -1.6 - lift);
+            c.fillStyle = skate ? '#e7e5e4' : '#3a3532';
             c.beginPath();
-            c.ellipse(k * swing * stride + 1, side, 2.6, 1.5, 0, 0, Math.PI * 2);
+            c.ellipse(fx + (side ? 1.2 : 0), -1 - lift, side ? 2.4 : 1.8, 1.3, 0, 0, Math.PI * 2);
             c.fill();
+            if (skate) {
+                c.strokeStyle = '#94a3b8';
+                c.lineWidth = 0.9;
+                line(c, fx - 2.4, 0.4 - lift, fx + 3.4, 0.4 - lift);
+                c.strokeStyle = p.pants;
+                c.lineWidth = legW;
+            }
         });
-        const reach = mode === 'skate' ? 11 : 8.2;
-        c.fillStyle = p.jacket;
-        [[-1, 1], [1, -1]].forEach(([k, side]) => {
-            const hx = mode === 'skate' ? 0.5 : k * swing * 3;
-            c.strokeStyle = p.jacket;
+
+        const armSwing = skate ? 0 : sw * (side ? 3.4 : 0.8);
+        const arm = (k, near) => {
+            c.strokeStyle = near ? p.jacket : shade(p.jacket);
             c.lineWidth = 2.6;
-            c.lineCap = 'round';
-            line(c, 0, side * 5.5, hx, side * reach);
+            let hx, hy;
+            if (skate) {
+                hx = side ? k * 6.5 : k * 9;
+                hy = -16;
+            } else {
+                hx = side ? k * armSwing : k * 6.2;
+                hy = side ? -12.5 : -12.2 + (k > 0 ? armSwing : -armSwing) * 0.4;
+            }
+            const sx = side ? 0 : k * 4.3;
+            line(c, sx, -21, hx, hy);
             c.fillStyle = p.skin;
-            circle(c, hx, side * reach, 1.5);
-        });
-        if (p.bag && mode !== 'skate') {
-            c.fillStyle = p.bag;
-            c.fillRect(-3 * swing - 2, 9.6, 4.5, 3.4);
-        }
+            circle(c, hx, hy, 1.4);
+            if (p.bag && !skate && near) {
+                c.fillStyle = p.bag;
+                rr(c, hx - 2.6, hy + 0.5, 5.2, 5.6, 1);
+                c.fill();
+            }
+        };
+        if (side) arm(-1, false);
+
         c.fillStyle = p.jacket;
-        c.beginPath();
-        c.ellipse(0, 0, 3.8, 7.2, 0, 0, Math.PI * 2);
+        rr(c, -4.6, -23.5, 9.2, 13, 3.5);
         c.fill();
-        c.fillStyle = 'rgba(255,255,255,0.12)';
-        c.beginPath();
-        c.ellipse(0.8, 0, 2, 5.6, 0, 0, Math.PI * 2);
-        c.fill();
+        c.fillStyle = 'rgba(0,0,0,0.06)';
+        c.fillRect(-4.6, -12.5, 9.2, 2);
+
+        if (side) arm(1, true);
+        else {
+            arm(-1, true);
+            arm(1, true);
+        }
+
+        const hy = -28.5;
         c.fillStyle = p.skin;
-        circle(c, 1.3, 0, 3.6);
+        circle(c, side ? 0.6 : 0, hy, 4.6);
         c.fillStyle = p.hat || p.hair;
         c.beginPath();
-        c.arc(1.3, 0, 3.8, p.hat ? 0 : Math.PI * 0.6, p.hat ? Math.PI * 2 : Math.PI * 1.4);
-        if (!p.hat) c.ellipse(0.4, 0, 3, 3.6, 0, Math.PI * 1.4, Math.PI * 0.6, true);
+        if (view === 'back') {
+            c.arc(0, hy, 4.8, 0, Math.PI * 2);
+        } else if (view === 'front') {
+            c.arc(0, hy - 0.4, 4.8, Math.PI * 1.02, Math.PI * 1.98);
+            c.closePath();
+        } else {
+            c.moveTo(-4.4, hy + 2.2);
+            c.arc(0.6, hy - 0.3, 5, Math.PI * 0.85, Math.PI * 1.85);
+            c.closePath();
+        }
         c.fill();
-        if (p.hat) {
-            c.fillStyle = 'rgba(255,255,255,0.7)';
-            circle(c, 1.3, 0, 1.2);
+        if (p.hat && view !== 'back') {
+            c.fillStyle = 'rgba(255,255,255,0.75)';
+            circle(c, side ? -0.4 : 0, hy - 5.2, 1.3);
+        }
+        if (view !== 'back') {
+            c.fillStyle = 'rgba(28,25,23,0.75)';
+            if (side) circle(c, 3.1, hy + 0.2, 0.6);
+            else {
+                circle(c, -1.6, hy + 0.4, 0.6);
+                circle(c, 1.6, hy + 0.4, 0.6);
+            }
         }
         c.restore();
+    }
+
+    function shade(hex) {
+        const n = parseInt(hex.slice(1), 16);
+        const f = v => Math.round(v * 0.82);
+        return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
     }
 
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -393,7 +452,7 @@
                 return;
             }
             wk.t += wk.dir * wk.speed * dt / pw;
-            wk.phase += dt * wk.speed * 0.32;
+            wk.phase += dt * wk.speed * 0.28;
             if (Math.random() < dt * 0.06) wk.pause = 1 + Math.random() * 2.5;
             if (Math.random() < dt * 0.02) wk.dir *= -1;
         });
@@ -407,6 +466,7 @@
     }
 
     function drawPeople(c) {
+        const size = mobile ? 0.85 : 1, list = [];
         skaters.forEach(sk => {
             const h = sk.hist;
             for (let i = 1; i < h.length; i++) {
@@ -416,7 +476,7 @@
             }
             const p = h[h.length - 1], q = h[h.length - 3];
             if (!p || !q) return;
-            drawPerson(c, sk.p, p.x, p.y, Math.atan2(p.y - q.y, p.x - q.x), sk.phase, 'skate', mobile ? 1 : 1.3);
+            list.push([sk.p, p.x, p.y, Math.atan2(p.y - q.y, p.x - q.x), sk.phase, 'skate']);
         });
         walkers.forEach(wk => {
             const p = loopPoint(loop, wk.t, wk.lane), q = loopPoint(loop, wk.t + wk.dir * 0.003, wk.lane);
@@ -424,8 +484,9 @@
             let d = target - wk.ang;
             d = Math.atan2(Math.sin(d), Math.cos(d));
             wk.ang += d * 0.2;
-            drawPerson(c, wk.p, p.x, p.y, wk.ang, wk.phase, wk.pause > 0 ? 'stand' : 'walk', mobile ? 1 : 1.3);
+            list.push([wk.p, p.x, p.y, wk.ang, wk.phase, wk.pause > 0 ? 'stand' : 'walk']);
         });
+        list.sort((a, b) => a[2] - b[2]).forEach(a => drawPerson(c, ...a, size));
     }
 
     function drawAgent(c) {
