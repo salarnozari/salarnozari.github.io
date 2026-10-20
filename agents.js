@@ -344,9 +344,11 @@
             return p;
         });
         let typoSpan = null;
+        const chars = tPara.map(t => t.texts.join('').length);
+        const longest = Math.max(...chars);
         const writerJobs = writers.map(async (a, w) => {
             const mine = paras.map((_, i) => i).filter(i => i % nWriters === w);
-            const cps = 80 * (1 + 0.6 * (mine.length - 1));
+            const cps = 80 * mine.reduce((s, i) => s + chars[i], 0) / longest;
             await sleep(500 + w * 220);
             for (const i of mine) {
                 a.status(mine.length > 1 ? `writing ${mine.indexOf(i) + 1}/${mine.length}` : 'writing');
@@ -416,6 +418,105 @@
         prompt.classList.remove('sent');
         prompt.textContent = `Created by a team of ${roles.length + 1} agents`;
         prompt.classList.add('credit');
+        sleep(900).then(() => lili());
+    }
+
+    const DOG = [
+        '........................RBBR..', '.......................BBBBBB.',
+        '......................BBBBeBB.', '.....................DBBBBBBBn',
+        '.....................DDBBBBBBB', '....BBBBWBBBBBBBBBWWWDDDBBB...',
+        '...BBBBBWBBBBBBBBBWWWWDDDW....', '...BBBBWWBBBBBBBBWWWWWDDDW....',
+        '...BBBWWWWBBBBBBWWWWWWRRRW....', '...WWWWWWWWBBBBWWWWWWWRRW.....',
+        '....WWWWWWWWWWWWWWWWWWWW......', '.....wwwwwwwwwwwwwwwwww.......'
+    ];
+    const DOG_PAL = { B: '#8b3a1a', D: '#62280f', R: '#b0582a', W: '#f6f1e9', w: '#ddd2c3', e: '#1c1917', n: '#1c1917', o: '#3b2516' };
+    const TAIL = [
+        [[3, 4], [3, 3], [2, 3], [2, 2], [1, 2], [1, 1], [0, 1], [0, 0]],
+        [[3, 5], [2, 5], [2, 4], [1, 4], [1, 5], [0, 5], [0, 6]]
+    ];
+    const LEGS = {
+        stand: [[6, 7, 'w'], [19, 20, 'w'], [5, 6, 'W'], [20, 21, 'W']],
+        a: [[7, 8, 'w'], [18, 19, 'w'], [4, 5, 'W'], [21, 22, 'W']],
+        b: [[4, 5, 'w'], [21, 22, 'w'], [7, 8, 'W'], [18, 19, 'W']]
+    };
+
+    function dogFrame(legs, tail, cls) {
+        const grid = Array.from({ length: 18 }, (_, y) => ('.' + (DOG[y - 1] || '').padEnd(30, '.') + '.').split(''));
+        const set = (x, y, c) => { grid[y + 1][x + 1] = c; };
+        TAIL[tail].forEach(([x, y], i) => set(x, y, i > TAIL[tail].length - 3 ? 'R' : 'D'));
+        LEGS[legs].forEach(([x0, x1, c]) => {
+            for (let y = 12; y <= 14; y++) {
+                for (let x = x0; x <= x1 + (y === 14 ? 1 : 0); x++) set(x, y, c);
+            }
+        });
+        const filled = (x, y) => grid[y] && grid[y][x] && grid[y][x] !== '.' && grid[y][x] !== 'o';
+        const out = grid.map((row, y) => row.map((ch, x) => ch !== '.' ? ch
+            : [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => filled(x + dx, y + dy)) ? 'o' : '.'));
+        let rects = '';
+        out.forEach((row, y) => row.forEach((ch, x) => {
+            if (ch !== '.') rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${DOG_PAL[ch]}"/>`;
+        }));
+        return `<g class="${cls}">${rects}</g>`;
+    }
+
+    async function lili(still) {
+        const el = document.createElement('div');
+        el.className = 'lili';
+        el.innerHTML = `<svg viewBox="0 0 32 18" width="96" height="54" shape-rendering="crispEdges">${
+            dogFrame('stand', 0, 'k0') + dogFrame('stand', 1, 'k1') + dogFrame('a', 1, 'w0') + dogFrame('b', 0, 'w1')
+        }</svg><span class="say">Bark bark! Lili is happy you're here!</span>`;
+        layer.appendChild(el);
+        const say = el.querySelector('.say');
+        const spot = () => {
+            const r = pixel.getBoundingClientRect();
+            return { x: Math.max(window.scrollX + 6, r.left + window.scrollX - 98), y: r.top + window.scrollY + 88 - 48 };
+        };
+        const fit = x => {
+            const w = say.offsetWidth;
+            const head = 81;
+            const left = Math.min(Math.max(head + 20 - w, 8 - x), document.documentElement.clientWidth - 8 - w - x);
+            say.style.left = left + 'px';
+            say.style.setProperty('--tip', head - left + 'px');
+        };
+        const put = p => {
+            el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
+            fit(p.x);
+        };
+        const wag = async (ms, talk) => {
+            el.classList.add('wag');
+            if (talk) say.classList.add('on');
+            await sleep(ms);
+            el.classList.remove('wag');
+        };
+
+        let p = spot();
+        if (still) {
+            put(p);
+        } else {
+            const start = { x: window.scrollX - 110, y: p.y };
+            put(start);
+            await sleep(50);
+            const t = (p.x - start.x) / 95;
+            el.classList.add('walk');
+            el.style.transition = `transform ${t}s linear`;
+            put(p);
+            await sleep(t * 1000);
+            el.style.transition = '';
+            el.classList.remove('walk');
+            await sleep(250);
+            await wag(4500, true);
+            say.classList.remove('on');
+        }
+
+        window.addEventListener('resize', () => put(spot()));
+        el.addEventListener('mouseenter', () => {
+            if (!el.classList.contains('wag')) wag(2200, true).then(() => say.classList.remove('on'));
+        });
+        if (still) return;
+        for (;;) {
+            await sleep(9000 + Math.random() * 7000);
+            if (!document.hidden && !el.classList.contains('wag')) await wag(1400);
+        }
     }
 
     function showAll() {
@@ -425,6 +526,7 @@
         scene.classList.add('on', 'idle');
         prompt.textContent = 'Created by a team of agents';
         prompt.classList.add('credit');
+        lili(true);
     }
 
     function visible(r) {

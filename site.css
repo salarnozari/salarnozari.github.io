@@ -315,6 +315,88 @@ h1 {
     50% { opacity: 0.85; }
 }
 
+.lili {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: auto;
+    will-change: transform;
+}
+
+.lili svg {
+    display: block;
+    image-rendering: pixelated;
+}
+
+.lili g {
+    opacity: 0;
+}
+
+.lili .k0 {
+    opacity: 1;
+}
+
+.lili.walk .k0 {
+    opacity: 0;
+}
+
+.lili.walk .w0 {
+    animation: lili-a 0.3s infinite;
+}
+
+.lili.walk .w1 {
+    animation: lili-b 0.3s infinite;
+}
+
+.lili.wag .k0 {
+    animation: lili-a 0.2s infinite;
+}
+
+.lili.wag .k1 {
+    animation: lili-b 0.2s infinite;
+}
+
+@keyframes lili-a {
+    0%, 49.9% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+@keyframes lili-b {
+    0%, 49.9% { opacity: 0; }
+    50%, 100% { opacity: 1; }
+}
+
+.lili .say {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #ffffff;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+.lili .say::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: calc(var(--tip, 50%) - 5px);
+    border: 5px solid transparent;
+    border-top-color: var(--line);
+}
+
+.lili .say.on {
+    opacity: 1;
+    transform: none;
+}
+
 .prompt {
     min-width: 19ch;
     padding: 7px 11px;
