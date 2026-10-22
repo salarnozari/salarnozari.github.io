@@ -5,6 +5,7 @@
     const scene = document.getElementById('scene');
     const pixel = document.getElementById('pixel');
     const prompt = document.getElementById('prompt');
+    const skipBtn = document.getElementById('skip');
     if (!card || !layer || !scene || !pixel || !prompt) return;
 
     const photo = card.querySelector('.profile-image img');
@@ -15,7 +16,13 @@
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const TYPO = ['philosophy', 'phylosophy'];
 
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    let epoch = 0;
+    let running = false;
+    const preps = [];
+    const sleep = ms => {
+        const e = epoch;
+        return new Promise(r => setTimeout(() => { if (e === epoch) r(); }, ms));
+    };
     const box = el => {
         const r = el.getBoundingClientRect();
         return { x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height };
@@ -234,6 +241,7 @@
         const tName = prepare(name);
         const tMail = emails.map(prepare);
         const tPara = paras.map(prepare);
+        preps.push(tName, ...tMail, ...tPara);
         photo.classList.add('pending');
         root.classList.add('links-pending');
         root.classList.remove('assemble');
@@ -425,6 +433,8 @@
         prompt.classList.remove('sent');
         prompt.textContent = `Created by a team of ${roles.length + 1} agents`;
         prompt.classList.add('credit');
+        running = false;
+        if (skipBtn) skipBtn.classList.remove('on');
         sleep(900).then(() => lili());
     }
 
@@ -466,7 +476,7 @@
         return `<g class="${cls}">${rects}</g>`;
     }
 
-    async function lili(still) {
+    async function lili(still, play = !still) {
         const el = document.createElement('div');
         el.className = 'lili';
         el.innerHTML = `<svg viewBox="0 0 32 18" width="96" height="54" shape-rendering="crispEdges">${
@@ -632,7 +642,7 @@
         el.addEventListener('mouseenter', () => {
             if (!el.classList.contains('wag') && !el.classList.contains('walk')) wag(2200, HELLO);
         });
-        if (still) return;
+        if (!play) return;
 
         let clickTimer = null;
         const ignore = e => e.button !== 0 || e.target.closest('a');
@@ -666,6 +676,26 @@
         prompt.textContent = 'Created by a team of agents';
         prompt.classList.add('credit');
         lili(true);
+    }
+
+    function settle() {
+        epoch++;
+        running = false;
+        if (skipBtn) skipBtn.classList.remove('on');
+        agents.length = 0;
+        layer.replaceChildren();
+        preps.forEach(t => { if (t.el.classList.contains('typing')) finish(t); });
+        card.querySelectorAll('.flag').forEach(f => f.classList.remove('flag'));
+        root.classList.remove('assemble', 'links-pending', 'instant');
+        photo.classList.remove('pending');
+        scene.classList.remove('flash', 'move');
+        scene.style.transform = '';
+        scene.classList.add('on', 'idle');
+        prompt.classList.remove('sent');
+        prompt.textContent = 'Created by a team of agents';
+        prompt.classList.add('credit');
+        lili(true, true);
+        idle();
     }
 
     function visible(r) {
@@ -738,9 +768,33 @@
         return;
     }
     requestAnimationFrame(tick);
+    if (root.classList.contains('instant')) {
+        settle();
+        return;
+    }
+    running = true;
+    if (skipBtn) {
+        skipBtn.classList.add('on');
+        skipBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (running) settle();
+        });
+    }
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && running) settle();
+    });
+    window.addEventListener('pageshow', e => {
+        if (e.persisted && running) settle();
+    });
     const ready = document.fonts ? document.fonts.ready : Promise.resolve();
     ready
-        .then(assemble)
-        .catch(showAll)
-        .then(idle);
+        .then(() => running && assemble().then(idle))
+        .catch(() => {
+            if (running) {
+                running = false;
+                if (skipBtn) skipBtn.classList.remove('on');
+                showAll();
+                idle();
+            }
+        });
 })();

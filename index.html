@@ -49,15 +49,28 @@
     }
     </script>
 
-    <link rel="stylesheet" href="site.css?v=4">
+    <link rel="stylesheet" href="site.css?v=5">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            document.documentElement.classList.add('assemble');
-            setTimeout(() => document.documentElement.classList.remove('assemble'), 3000);
-        }
+        (() => {
+            const root = document.documentElement;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const nav = performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
+            const type = nav ? nav.type : 'navigate';
+            let seen = false;
+            try {
+                seen = sessionStorage.getItem('seen') === '1';
+                sessionStorage.setItem('seen', '1');
+            } catch (e) {}
+            if (type === 'back_forward' || (seen && type !== 'reload')) {
+                root.classList.add('instant');
+                return;
+            }
+            root.classList.add('assemble');
+            setTimeout(() => root.classList.remove('assemble'), 3000);
+        })();
     </script>
 </head>
 <body>
@@ -87,6 +100,7 @@
         </div>
     </main>
     <div class="team" id="team" aria-hidden="true"></div>
-    <script src="agents.js?v=5" defer></script>
+    <button class="skip" id="skip" type="button">Skip animation</button>
+    <script src="agents.js?v=6" defer></script>
 </body>
 </html>
