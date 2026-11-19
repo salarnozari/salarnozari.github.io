@@ -316,9 +316,75 @@ h1 {
     transition: opacity 0.5s ease, transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+.pixel {
+    width: 96px;
+    overflow: hidden;
+    transition: width 0.5s ease, margin 0.5s ease;
+}
+
+.pixel.gone {
+    width: 0;
+    margin-right: -14px;
+    visibility: hidden;
+}
+
 .pixel svg {
     display: block;
     image-rendering: pixelated;
+}
+
+.lid {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transition: transform 0.6s ease;
+}
+
+.pixel.closing .lid {
+    transform: scaleY(0.14);
+}
+
+.pixel.closing .hand,
+.pixel.closing .glow {
+    animation: none;
+    opacity: 0;
+}
+
+.walker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.walker svg {
+    display: block;
+    image-rendering: pixelated;
+}
+
+.walker svg .wa {
+    opacity: 1;
+}
+
+.walker svg .wb {
+    opacity: 0;
+}
+
+.walker.walking svg .wa {
+    animation: tap-a 0.32s infinite;
+}
+
+.walker.walking svg .wb {
+    animation: tap-b 0.32s infinite;
+}
+
+.walker.walking svg {
+    animation: strut 0.32s steps(1) infinite;
+}
+
+@keyframes strut {
+    0% { translate: 0 0; }
+    50% { translate: 0 -3px; }
 }
 
 .hand {

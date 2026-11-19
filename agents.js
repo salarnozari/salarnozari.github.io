@@ -60,30 +60,56 @@
     const PAL = {
         h: '#2b2420', s: '#c99a74', g: '#1c1917', w: '#f5f5f4', e: '#1c1917', m: '#8e4f3e',
         j: '#ece3d3', J: '#d9cdb8', W: '#ffffff', b: '#1c1917', L: '#e7e5e4', l: '#a8a29e',
-        a: '#2563eb', d: '#d6d3d1'
+        a: '#2563eb', d: '#d6d3d1', P: '#44403c'
+    };
+
+    const runs = (grid, w) => {
+        let out = '';
+        grid.forEach((row, y) => {
+            for (let x = 0; x < w;) {
+                const ch = row[x];
+                let n = 1;
+                while (x + n < w && row[x + n] === ch) n++;
+                if (ch !== '.') out += `<rect x="${x}" y="${y}" width="${n}" height="1" fill="${PAL[ch]}"/>`;
+                x += n;
+            }
+        });
+        return out;
     };
 
     function pixelArt() {
         const grid = HEAD.map(r => (r + [...r].reverse().join('')).split(''));
         while (grid.length < 24) grid.push(new Array(24).fill('.'));
-        for (let y = 14; y <= 21; y++) {
-            for (let x = 5; x <= 18; x++) grid[y][x] = y === 14 || x === 5 || x === 18 ? 'l' : 'L';
-        }
-        grid[17][11] = grid[17][12] = grid[18][11] = grid[18][12] = 'a';
         for (let x = 0; x < 24; x++) grid[22][x] = 'd';
-        let out = '';
-        grid.forEach((row, y) => {
-            for (let x = 0; x < 24;) {
-                const ch = row[x];
-                let n = 1;
-                while (x + n < 24 && row[x + n] === ch) n++;
-                if (ch !== '.') out += `<rect x="${x}" y="${y}" width="${n}" height="1" fill="${PAL[ch]}"/>`;
-                x += n;
-            }
-        });
+        const lid = Array.from({ length: 24 }, () => new Array(24).fill('.'));
+        for (let y = 14; y <= 21; y++) {
+            for (let x = 5; x <= 18; x++) lid[y][x] = y === 14 || x === 5 || x === 18 ? 'l' : 'L';
+        }
+        lid[17][11] = lid[17][12] = lid[18][11] = lid[18][12] = 'a';
         const hand = (x, cls) => `<rect class="hand ${cls}" x="${x}" y="20" width="2" height="2" fill="${PAL.s}"/>`;
-        return `<svg viewBox="0 0 24 24" width="96" height="96" shape-rendering="crispEdges">${out}${hand(3, 'l')}${hand(19, 'r')}<rect class="glow" x="6" y="15" width="12" height="6" fill="${PAL.a}"/></svg>`;
+        return `<svg viewBox="0 0 24 24" width="96" height="96" shape-rendering="crispEdges">${runs(grid, 24)}<g class="lid">${runs(lid, 24)}</g>${hand(3, 'l')}${hand(19, 'r')}<rect class="glow" x="6" y="15" width="12" height="6" fill="${PAL.a}"/></svg>`;
     }
+
+    const WALKER = (() => {
+        const base = HEAD.slice(0, 18).map(r => (r + [...r].reverse().join('')).split(''));
+        while (base.length < 26) base.push(new Array(24).fill('.'));
+        for (let x = 18; x <= 23; x++) {
+            base[15][x] = 'l';
+            base[16][x] = 'L';
+        }
+        base[15][17] = base[16][17] = 's';
+        const frame = (l0, l1, r0, r1) => {
+            const g = base.map(r => [...r]);
+            for (let y = 18; y <= 25; y++) {
+                for (let x = l0; x <= l1; x++) g[y][x] = y >= 24 ? 'b' : 'P';
+                for (let x = r0; x <= r1; x++) g[y][x] = y >= 24 ? 'b' : 'P';
+            }
+            return g;
+        };
+        const draw = g => runs(g, 24);
+        const A = frame(6, 9, 14, 17), B = frame(9, 11, 12, 14);
+        return `<svg viewBox="0 0 24 26" width="96" height="104" shape-rendering="crispEdges"><g class="wa">${draw(A)}</g><g class="wb">${draw(B)}</g></svg>`;
+    })();
 
     function lap() {
         const r = pixel.getBoundingClientRect();
@@ -172,6 +198,28 @@
         return Promise.race([go(a, s.x, s.y), sleep(2500)]);
     }
 
+    async function departure() {
+        const b = box(pixel);
+        pixel.classList.add('closing');
+        await sleep(900);
+        const w = document.createElement('div');
+        w.className = 'walker';
+        w.innerHTML = WALKER;
+        w.style.transform = `translate3d(${b.x}px, ${b.y}px, 0)`;
+        layer.appendChild(w);
+        w.offsetWidth;
+        pixel.style.visibility = 'hidden';
+        await sleep(350);
+        const target = window.scrollX - 140;
+        const secs = Math.max(1.5, (b.x - target) / 190);
+        w.classList.add('walking');
+        w.style.transition = `transform ${secs}s linear`;
+        w.style.transform = `translate3d(${target}px, ${b.y}px, 0)`;
+        await sleep(secs * 1000);
+        w.remove();
+        pixel.classList.add('gone');
+    }
+
     async function sendOff() {
         const n = crew.length;
         await Promise.all(crew.map((a, i) => {
@@ -222,6 +270,7 @@
         taxi.firstChild.style.transform = '';
         taxi.classList.add('drive');
         taxi.style.transform = `translate3d(${vw + 260}px, ${top}px, 0)`;
+        const gone = departure();
         await sleep(1900);
         taxi.remove();
         crew.forEach(a => {
@@ -229,6 +278,7 @@
             const at = agents.indexOf(a);
             if (at >= 0) agents.splice(at, 1);
         });
+        await gone;
         crew = [];
     }
 
@@ -556,6 +606,7 @@
         photo.classList.remove('pending');
         scene.style.transform = '';
         scene.classList.add('on', 'idle');
+        pixel.classList.add('gone');
         prompt.textContent = 'Created by a team of agents';
         prompt.classList.add('credit');
     }
@@ -574,6 +625,7 @@
         scene.classList.remove('flash', 'move');
         scene.style.transform = '';
         scene.classList.add('on', 'idle');
+        pixel.classList.add('gone');
         prompt.classList.remove('sent');
         prompt.textContent = 'Created by a team of agents';
         prompt.classList.add('credit');
