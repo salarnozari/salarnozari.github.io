@@ -479,7 +479,30 @@
     }
 
 
-    const MON = '<g class="mon"><rect x="25" y="0" width="1" height="2" fill="#7c3aed"/><rect x="29" y="0" width="1" height="2" fill="#7c3aed"/><rect x="25" y="0" width="1" height="1" fill="#fde68a"/><rect x="29" y="0" width="1" height="1" fill="#fde68a"/><rect x="29" y="6" width="1" height="1" fill="#ffffff"/><rect x="31" y="6" width="1" height="1" fill="#ffffff"/><rect x="26" y="4" width="2" height="1" fill="#f9a8d4"/><g class="jaw"><rect x="29" y="6" width="3" height="2" fill="#7f1d1d"/><rect x="30" y="7" width="1" height="1" fill="#f87171"/></g></g>';
+    const MON_PAL = { P: '#a78bfa', o: '#4c1d95', L: '#ede9fe', e: '#ffffff', k: '#1c1917', c: '#f9a8d4', m: '#7f1d1d', t: '#f87171', f: '#ffffff', h: '#fde68a' };
+    const monFrame = (feet, open, cls) => {
+        const mouth = open
+            ? ['oPPPPmmmmPPPPo', 'oPPPPfttfPPPPo']
+            : ['oPPPPPPPPPPPPo', 'oPPPPfmmfPPPPo'];
+        const feetRows = {
+            s: ['..PP......PP..', '..oo......oo..'],
+            a: ['..PP.....PP...', '..oo.....oo...'],
+            b: ['...PP.....PP..', '...oo.....oo..']
+        }[feet];
+        const rows = [
+            '..h........h..', '..hooooooooh..', '.oPPPPPPPPPPo.', 'oPPPPPPPPPPPPo',
+            'oPPeePPPPeePPo', 'oPPekPPPPekPPo', 'oPcPPPPPPPPcPo',
+            mouth[0], mouth[1],
+            'oPPLLLLLLLLPPo', '.oPLLLLLLLLPo.', '..oPPPPPPPPo..',
+            ...feetRows
+        ];
+        let rects = '';
+        rows.forEach((row, y) => [...row].forEach((ch, x) => {
+            if (ch !== '.') rects += `<rect x="${x + 16}" y="${y + 2}" width="1" height="1" fill="${MON_PAL[ch] || MON_PAL.P}"/>`;
+        }));
+        return `<g class="${cls}">${rects}</g>`;
+    };
+    const MON = '<g class="mon">' + monFrame('s', false, 'ms') + monFrame('s', true, 'mo') + monFrame('a', false, 'ma') + monFrame('b', false, 'mb') + '</g>';
 
     async function lili(still, play = !still) {
         const el = document.createElement('div');

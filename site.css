@@ -572,29 +572,47 @@ h1 {
     opacity: 0;
 }
 
+.lili .mon g {
+    opacity: 0;
+}
+
 .lili.monster .mon {
     opacity: 1;
 }
 
-.lili .mon .jaw {
+.lili.monster .k0,
+.lili.monster .k1,
+.lili.monster .w0,
+.lili.monster .w1 {
+    display: none;
+}
+
+.lili.monster .mon .ms {
+    opacity: 1;
+}
+
+.lili.monster.walk .mon .ms {
     opacity: 0;
 }
 
-.lili.monster svg {
-    filter: hue-rotate(250deg) saturate(1.35);
+.lili.monster.walk .mon .ma {
+    animation: lili-a 0.16s infinite;
 }
 
-.lili.chomp .mon .jaw {
-    animation: chomp 0.16s steps(1) infinite;
+.lili.monster.walk .mon .mb {
+    animation: lili-b 0.16s infinite;
+}
+
+.lili.monster.chomp .mon .ms {
+    animation: lili-a 0.2s infinite;
+}
+
+.lili.monster.chomp .mon .mo {
+    animation: lili-b 0.2s infinite;
 }
 
 .lili.morph svg {
     animation: morph 0.3s ease-in-out;
-}
-
-@keyframes chomp {
-    0% { opacity: 1; }
-    50% { opacity: 0; }
 }
 
 @keyframes morph {
