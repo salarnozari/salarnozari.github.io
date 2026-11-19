@@ -16,12 +16,13 @@
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const TYPO = ['philosophy', 'phylosophy'];
 
+    const SPEED = 2.5;
     let epoch = 0;
     let running = false;
     const preps = [];
     const sleep = ms => {
         const e = epoch;
-        return new Promise(r => setTimeout(() => { if (e === epoch) r(); }, ms));
+        return new Promise(r => setTimeout(() => { if (e === epoch) r(); }, ms / SPEED));
     };
     const box = el => {
         const r = el.getBoundingClientRect();
@@ -142,7 +143,7 @@
                     a.ty = p.y;
                 }
             }
-            const k = Math.min(1, dt * a.k);
+            const k = Math.min(1, dt * a.k * SPEED);
             a.x += (a.tx - a.x) * k;
             a.y += (a.ty - a.y) * k;
             if (a.arrive && Math.hypot(a.tx - a.x, a.ty - a.y) < 1.5) {
@@ -234,7 +235,7 @@
 
     function clearWire(w) {
         w.classList.add('done');
-        setTimeout(() => w.remove(), 600);
+        setTimeout(() => w.remove(), 600 / SPEED);
     }
 
     async function assemble() {
@@ -549,7 +550,7 @@
             const t0 = performance.now();
             const step = now => {
                 if (id !== job) return resolve(false);
-                const k = Math.min(1, (now - t0) / 1000 * speed / d);
+                const k = Math.min(1, (now - t0) / 1000 * speed * SPEED / d);
                 put(sx + (x - sx) * k, sy + (y - sy) * k);
                 if (k < 1) return requestAnimationFrame(step);
                 el.classList.remove('walk', 'run');
@@ -590,7 +591,7 @@
                 const t0 = performance.now();
                 const step = now => {
                     if (thrown !== ball || carrying) return resolve();
-                    const k = Math.min(1, (now - t0) / 750);
+                    const k = Math.min(1, (now - t0) * SPEED / 750);
                     setBall(x - 6 + (tx - x) * k, y - 6 + (ty - y) * k - lift * 4 * k * (1 - k));
                     if (k < 1) return requestAnimationFrame(step);
                     resolve();
@@ -620,7 +621,7 @@
             await sleep(1500);
             if (thrown === ball && !carrying) {
                 thrown.classList.add('gone');
-                setTimeout(() => thrown.remove(), 500);
+                setTimeout(() => thrown.remove(), 500 / SPEED);
                 ball = null;
             }
         };
@@ -653,7 +654,7 @@
             if (ignore(e)) return;
             clearTimeout(clickTimer);
             if (e.detail > 1) return;
-            clickTimer = setTimeout(() => come(e.pageX, e.pageY), 260);
+            clickTimer = setTimeout(() => come(e.pageX, e.pageY), 260 / SPEED);
         });
         document.addEventListener('dblclick', e => {
             if (ignore(e)) return;
