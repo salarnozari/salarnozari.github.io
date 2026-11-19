@@ -16,7 +16,7 @@
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const TYPO = ['philosophy', 'phylosophy'];
 
-    const SPEED = 2.5;
+    const SPEED = 6.25;
     let epoch = 0;
     let running = false;
     const preps = [];
