@@ -644,7 +644,7 @@
             el.classList.remove('monster', 'morph');
             home = true;
             busy = false;
-            hold('More treats? Double-click! Sorry about that, I love treats. Please consider donating to your favorite charity, help make this life easier for everyone.', 53000);
+            hold('Sorry about that, I love treats. Please consider donating to your favorite charity, help make this life easier for everyone. More treats? Double-click!', 53000);
             await wag(3000);
         };
 
