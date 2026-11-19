@@ -211,7 +211,7 @@
         pixel.style.visibility = 'hidden';
         await sleep(350);
         const target = window.scrollX - 140;
-        const secs = Math.max(1.5, (b.x - target) / 190);
+        const secs = Math.max(1, (b.x - target) / 340);
         w.classList.add('walking');
         w.style.transition = `transform ${secs}s linear`;
         w.style.transform = `translate3d(${target}px, ${b.y}px, 0)`;
@@ -230,7 +230,7 @@
             a.el.style.setProperty('--d', i * 0.11 + 's');
             a.el.classList.add('dance');
         });
-        await sleep(5000);
+        await sleep(2500);
         const first = slot(0, n), last = slot(n - 1, n);
         const vw = window.scrollX + document.documentElement.clientWidth;
         const stop = Math.min(last.x + 80, vw - TAXI_LEN * 3 - 12);
@@ -259,7 +259,7 @@
             await Promise.race([go(a, stop + offs[i], top), sleep(700)]);
             a.el.classList.add('dance');
         }));
-        await sleep(1200);
+        await sleep(600);
         crew.forEach((a, i) => {
             a.k = 40;
             a.follow = () => {

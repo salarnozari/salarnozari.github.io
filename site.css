@@ -371,15 +371,15 @@ h1 {
 }
 
 .walker.walking svg .wa {
-    animation: tap-a 0.32s infinite;
+    animation: tap-a 0.2s infinite;
 }
 
 .walker.walking svg .wb {
-    animation: tap-b 0.32s infinite;
+    animation: tap-b 0.2s infinite;
 }
 
 .walker.walking svg {
-    animation: strut 0.32s steps(1) infinite;
+    animation: strut 0.2s steps(1) infinite;
 }
 
 @keyframes strut {
