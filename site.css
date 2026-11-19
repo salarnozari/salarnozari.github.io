@@ -541,3 +541,11 @@ h1 {
     0% { translate: 0 0; }
     50% { translate: 0 -1px; }
 }
+
+.agent {
+    z-index: 2;
+}
+
+.taxi {
+    z-index: 1;
+}

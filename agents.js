@@ -144,15 +144,18 @@
     }
 
     let crew = [];
+    const TAXI_LEN = 76;
     const TAXI = (() => {
+        const L = TAXI_LEN;
         const R = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;
-        let s = R(1, 6, 26, 4, '#facc15') + R(1, 9, 26, 1, '#ca8a04') + R(7, 3, 14, 3, '#facc15')
-            + R(8, 4, 5, 2, '#bfdbfe') + R(15, 4, 5, 2, '#bfdbfe')
-            + R(11, 1, 6, 2, '#ffffff') + R(12, 2, 1, 1, '#1c1917') + R(14, 2, 1, 1, '#1c1917') + R(16, 2, 1, 1, '#1c1917')
-            + R(26, 6, 1, 1, '#fffbeb') + R(1, 6, 1, 1, '#dc2626');
-        for (let x = 3; x <= 23; x += 2) s += R(x, 7, 1, 1, '#1c1917');
-        s += R(5, 9, 4, 3, '#1c1917') + R(19, 9, 4, 3, '#1c1917') + R(6, 10, 2, 1, '#a8a29e') + R(20, 10, 2, 1, '#a8a29e');
-        return `<svg width="84" height="36" viewBox="0 0 28 12" shape-rendering="crispEdges">${s}</svg>`;
+        let s = R(1, 6, L - 2, 4, '#facc15') + R(1, 9, L - 2, 1, '#ca8a04') + R(7, 3, L - 14, 3, '#facc15');
+        for (let x = 8; x + 5 <= L - 8; x += 8) s += R(x, 4, 5, 2, '#bfdbfe');
+        const m = Math.floor(L / 2) - 3;
+        s += R(m, 1, 6, 2, '#ffffff') + R(m + 1, 2, 1, 1, '#1c1917') + R(m + 3, 2, 1, 1, '#1c1917') + R(m + 5, 2, 1, 1, '#1c1917')
+            + R(L - 2, 6, 1, 1, '#fffbeb') + R(1, 6, 1, 1, '#dc2626');
+        for (let x = 3; x <= L - 5; x += 2) s += R(x, 7, 1, 1, '#1c1917');
+        [5, Math.floor(L / 2) - 2, L - 9].forEach(x => { s += R(x, 9, 4, 3, '#1c1917') + R(x + 1, 10, 2, 1, '#a8a29e'); });
+        return `<svg width="${L * 3}" height="36" viewBox="0 0 ${L} 12" shape-rendering="crispEdges">${s}</svg>`;
     })();
 
     function slot(i, n) {
@@ -182,36 +185,50 @@
         await sleep(5000);
         const first = slot(0, n), last = slot(n - 1, n);
         const vw = window.scrollX + document.documentElement.clientWidth;
-        const stop = Math.min(last.x + 80, vw - 96);
+        const stop = Math.min(last.x + 80, vw - TAXI_LEN * 3 - 12);
         const top = first.y - 27;
         const taxi = document.createElement('div');
         taxi.className = 'taxi';
         taxi.innerHTML = TAXI;
         taxi.firstChild.style.transform = 'scaleX(-1)';
-        taxi.style.transform = `translate3d(${vw + 20}px, ${top}px, 0)`;
+        taxi.style.transform = `translate3d(${vw + 40}px, ${top}px, 0)`;
         layer.appendChild(taxi);
         taxi.offsetWidth;
         taxi.classList.add('drive');
         taxi.style.transform = `translate3d(${stop}px, ${top}px, 0)`;
         await sleep(1700);
         taxi.classList.remove('drive');
-        const door = stop + 42 - 16;
-        const rides = [...crew].reverse().map(async (a, k) => {
-            await sleep(k * 260);
-            await Promise.race([go(a, door, first.y), sleep(2500)]);
-            a.el.classList.remove('dance', 'on');
-            await sleep(300);
+        const step = n > 1 ? (TAXI_LEN * 3 - 42 - 28) / (n - 1) : 0;
+        const offs = crew.map((_, i) => 18 + i * step);
+        await Promise.all(crew.map(async (a, i) => {
+            a.k = 14;
+            await Promise.race([go(a, stop + offs[i], first.y), sleep(2500)]);
+            a.el.classList.remove('dance');
+        }));
+        await sleep(250);
+        await Promise.all(crew.map(async (a, i) => {
+            await Promise.race([go(a, stop + offs[i], top - 26), sleep(700)]);
+            await Promise.race([go(a, stop + offs[i], top), sleep(700)]);
+            a.el.classList.add('dance');
+        }));
+        await sleep(1200);
+        crew.forEach((a, i) => {
+            a.k = 40;
+            a.follow = () => {
+                const r = taxi.getBoundingClientRect();
+                return { x: r.left + window.scrollX + offs[i], y: top };
+            };
+        });
+        taxi.firstChild.style.transform = '';
+        taxi.classList.add('drive');
+        taxi.style.transform = `translate3d(${vw + 260}px, ${top}px, 0)`;
+        await sleep(1900);
+        taxi.remove();
+        crew.forEach(a => {
             a.el.remove();
             const at = agents.indexOf(a);
             if (at >= 0) agents.splice(at, 1);
         });
-        await Promise.all(rides);
-        await sleep(400);
-        taxi.firstChild.style.transform = '';
-        taxi.classList.add('drive');
-        taxi.style.transform = `translate3d(${vw + 140}px, ${top}px, 0)`;
-        await sleep(1800);
-        taxi.remove();
         crew = [];
     }
 
