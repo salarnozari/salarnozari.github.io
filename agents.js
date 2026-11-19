@@ -16,7 +16,8 @@
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const TYPO = ['philosophy', 'phylosophy'];
 
-    const SPEED = 6.25;
+    const SPEED = 1;
+    const TYPING = 3;
     let epoch = 0;
     let running = false;
     const preps = [];
@@ -205,7 +206,7 @@
                 j = Math.min(text.length, j + step);
                 node.textContent = text.slice(0, j);
                 const pause = text[j - 1] === ' ' ? 1.5 : /[.,!]/.test(text[j - 1]) ? 4 : 1;
-                await sleep(1000 * step * pause / cps);
+                await sleep(1000 * step * pause / cps / TYPING);
             }
         }
         a.follow = null;
