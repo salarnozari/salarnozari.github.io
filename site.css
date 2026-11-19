@@ -567,3 +567,38 @@ h1 {
         text-align: left;
     }
 }
+
+.lili .mon {
+    opacity: 0;
+}
+
+.lili.monster .mon {
+    opacity: 1;
+}
+
+.lili .mon .jaw {
+    opacity: 0;
+}
+
+.lili.monster svg {
+    filter: hue-rotate(250deg) saturate(1.35);
+}
+
+.lili.chomp .mon .jaw {
+    animation: chomp 0.16s steps(1) infinite;
+}
+
+.lili.morph svg {
+    animation: morph 0.3s ease-in-out;
+}
+
+@keyframes chomp {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes morph {
+    0% { scale: 1; }
+    40% { scale: 1.25 0.8; }
+    100% { scale: 1; }
+}

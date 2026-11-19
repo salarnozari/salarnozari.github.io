@@ -478,11 +478,14 @@
         return `<g class="${cls}">${rects}</g>`;
     }
 
+
+    const MON = '<g class="mon"><rect x="25" y="0" width="1" height="2" fill="#7c3aed"/><rect x="29" y="0" width="1" height="2" fill="#7c3aed"/><rect x="25" y="0" width="1" height="1" fill="#fde68a"/><rect x="29" y="0" width="1" height="1" fill="#fde68a"/><rect x="29" y="6" width="1" height="1" fill="#ffffff"/><rect x="31" y="6" width="1" height="1" fill="#ffffff"/><rect x="26" y="4" width="2" height="1" fill="#f9a8d4"/><g class="jaw"><rect x="29" y="6" width="3" height="2" fill="#7f1d1d"/><rect x="30" y="7" width="1" height="1" fill="#f87171"/></g></g>';
+
     async function lili(still, play = !still) {
         const el = document.createElement('div');
         el.className = 'lili';
         el.innerHTML = `<svg viewBox="0 0 32 18" width="96" height="54" shape-rendering="crispEdges">${
-            dogFrame('stand', 0, 'k0') + dogFrame('stand', 1, 'k1') + dogFrame('a', 1, 'w0') + dogFrame('b', 0, 'w1')
+            dogFrame('stand', 0, 'k0') + dogFrame('stand', 1, 'k1') + dogFrame('a', 1, 'w0') + dogFrame('b', 0, 'w1') + MON
         }</svg><span class="say">Bark bark! Lili is happy you're here!</span>`;
         layer.appendChild(el);
         const svg = el.querySelector('svg');
@@ -491,8 +494,8 @@
         const me = { x: 0, y: 0, left: false };
         let job = 0;
         let home = true;
-        let ball = null;
-        let carrying = false;
+        let busy = false;
+        const queue = [];
 
         const spot = () => {
             const r = pixel.getBoundingClientRect();
@@ -507,13 +510,12 @@
             say.style.setProperty('--tip', head - left + 'px');
         };
         const mouth = () => ({ x: me.x + (me.left ? 0 : 84), y: me.y + 12 });
-        const setBall = (x, y) => { ball.style.transform = `translate3d(${x}px, ${y}px, 0)`; };
+        const setAt = (n, x, y) => { n.style.transform = `translate3d(${x}px, ${y}px, 0)`; };
         const put = (x, y) => {
             me.x = x;
             me.y = y;
             el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
             svg.style.transform = me.left ? 'scaleX(-1)' : '';
-            if (carrying) setBall(mouth().x, mouth().y);
             if (say.classList.contains('on')) fit();
         };
         const talk = text => {
@@ -566,65 +568,72 @@
             hush();
             const s = stand(x, y, x < me.x + 48);
             if (!(await move(s.x, s.y, 150))) return;
-            await wag(2800, carrying ? 'Double-click to throw it again!' : 'Want to play fetch? Double-click!');
+            await wag(2800, 'Want to give me a treat? Double-click!');
         };
 
-        const fetchBall = async (x, y) => {
+        const TREAT = '<svg viewBox="0 0 10 6" width="20" height="12" shape-rendering="crispEdges"><path d="M0 0h2v1h6v-1h2v2h-1v2h1v2h-2v-1h-6v1h-2v-2h1v-2h-1z" fill="#6b3f1d"/><path d="M1 1h1v1h6v-1h1v1h-1v2h1v1h-1v-1h-6v1h-1v-1h1v-2h-1z" fill="#e8b66b"/><path d="M2 2h6v2h-6z" fill="#e8b66b"/><path d="M3 2h3v1h-3z" fill="#f6d9a0"/></svg>';
+
+        const eat = async () => {
+            busy = true;
             const id = ++job;
             home = false;
             hush();
-            carrying = false;
-            if (ball) ball.remove();
-            ball = document.createElement('div');
-            ball.className = 'ball';
-            ball.innerHTML = '<svg viewBox="0 0 6 6" width="12" height="12" shape-rendering="crispEdges"><path d="M1 0h4v1h1v4h-1v1h-4v-1h-1v-4h1z" fill="#3b2516"/><path d="M1 1h4v4h-4z" fill="#cddc39"/><path d="M1 1h2v1h-2z" fill="#eef5a8"/><path d="M4 4h1v1h-1z" fill="#9e9d24"/></svg>';
-            layer.appendChild(ball);
-            const thrown = ball;
-            const vw = document.documentElement.clientWidth, vh = window.innerHeight;
-            let tx, ty;
-            for (let i = 0; i < 12; i++) {
-                tx = window.scrollX + 40 + Math.random() * (vw - 80);
-                ty = window.scrollY + 70 + Math.random() * (vh - 130);
-                if (Math.hypot(tx - x, ty - y) > 180) break;
+            el.classList.remove('wag');
+            el.classList.add('monster', 'morph');
+            talk('RAWR! Treat!');
+            await sleep(450);
+            if (id !== job) return;
+            el.classList.remove('morph');
+            hush();
+            while (queue.length) {
+                const t = queue.shift();
+                await t.landed;
+                if (id !== job) return;
+                const left = t.x < me.x + 48;
+                const s = stand(t.x, t.y + 28, left);
+                if (!(await move(s.x, s.y, 300, true))) return;
+                me.left = t.x < me.x + 48;
+                put(me.x, me.y);
+                el.classList.add('chomp');
+                await sleep(650);
+                el.classList.remove('chomp');
+                t.el.classList.add('gone');
+                setTimeout(() => t.el.remove(), 500 / SPEED);
+                await sleep(150);
+                if (id !== job) return;
             }
-            const lift = 80 + Math.hypot(tx - x, ty - y) * 0.3;
-            const flight = new Promise(resolve => {
+            p = spot();
+            if (!(await move(p.x, p.y, 240, true))) return;
+            el.classList.add('morph');
+            await sleep(300);
+            el.classList.remove('monster', 'morph');
+            home = true;
+            busy = false;
+            await wag(3000, 'More treats? Double-click!');
+        };
+
+        const launch = (x, y) => {
+            const node = document.createElement('div');
+            node.className = 'ball';
+            node.innerHTML = TREAT;
+            layer.appendChild(node);
+            const m = mouth();
+            const sx = m.x - 10, sy = m.y - 6;
+            const tx = x - 10, ty = y - 6;
+            const lift = 70 + Math.hypot(tx - sx, ty - sy) * 0.25;
+            const t = { el: node, x, y };
+            t.landed = new Promise(resolve => {
                 const t0 = performance.now();
                 const step = now => {
-                    if (thrown !== ball || carrying) return resolve();
-                    const k = Math.min(1, (now - t0) * SPEED / 750);
-                    setBall(x - 6 + (tx - x) * k, y - 6 + (ty - y) * k - lift * 4 * k * (1 - k));
+                    const k = Math.min(1, (now - t0) * SPEED / 650);
+                    setAt(node, sx + (tx - sx) * k, sy + (ty - sy) * k - lift * 4 * k * (1 - k));
                     if (k < 1) return requestAnimationFrame(step);
                     resolve();
                 };
                 requestAnimationFrame(step);
             });
-            el.classList.add('wag');
-            await sleep(250);
-            if (id !== job) return;
-            const s = stand(tx, ty, tx < me.x + 48);
-            if (!(await move(s.x, s.y, 280, true))) return;
-            await flight;
-            if (id !== job) return;
-            me.left = tx < me.x + 48;
-            carrying = true;
-            put(me.x, me.y);
-            await sleep(350);
-            if (id !== job) return;
-            const back = stand(x, y, x < me.x + 48);
-            if (!(await move(back.x, back.y, 220, true))) return;
-            me.left = x < me.x + 48;
-            put(me.x, me.y);
-            carrying = false;
-            const m = mouth();
-            setBall(m.x, me.y + 36);
-            await wag(2600, 'Again? Double-click!');
-            await sleep(1500);
-            if (thrown === ball && !carrying) {
-                thrown.classList.add('gone');
-                setTimeout(() => thrown.remove(), 500 / SPEED);
-                ball = null;
-            }
+            queue.push(t);
+            if (!busy) eat();
         };
 
         let p = spot();
@@ -642,7 +651,7 @@
             put(p.x, p.y);
         });
         el.addEventListener('mouseenter', () => {
-            if (!el.classList.contains('wag') && !el.classList.contains('walk')) wag(2200, HELLO);
+            if (!busy && !el.classList.contains('wag') && !el.classList.contains('walk')) wag(2200, HELLO);
         });
         if (!play) return;
 
@@ -654,19 +663,19 @@
         document.addEventListener('click', e => {
             if (ignore(e)) return;
             clearTimeout(clickTimer);
-            if (e.detail > 1) return;
+            if (e.detail > 1 || busy) return;
             clickTimer = setTimeout(() => come(e.pageX, e.pageY), 260 / SPEED);
         });
         document.addEventListener('dblclick', e => {
             if (ignore(e)) return;
             clearTimeout(clickTimer);
-            fetchBall(e.pageX, e.pageY);
+            launch(e.pageX, e.pageY);
         });
 
         await wag(4500, HELLO);
         for (;;) {
             await sleep(9000 + Math.random() * 7000);
-            if (!document.hidden && !el.classList.contains('wag') && !el.classList.contains('walk')) await wag(1400);
+            if (!busy && !document.hidden && !el.classList.contains('wag') && !el.classList.contains('walk')) await wag(1400);
         }
     }
 
