@@ -269,7 +269,7 @@
             await sleep(240);
             wires.set(el, wire(el));
         }
-        const nWriters = 1 + Math.floor(Math.random() * paras.length);
+        const nWriters = paras.length;
         const photoAgent = Math.random() < 0.5;
         const linkerAgent = Math.random() < 0.6;
         const roles = [
