@@ -479,27 +479,27 @@
     }
 
 
-    const MON_PAL = { P: '#a78bfa', o: '#4c1d95', L: '#ede9fe', e: '#ffffff', k: '#1c1917', c: '#f9a8d4', m: '#7f1d1d', t: '#f87171', f: '#ffffff', h: '#fde68a' };
-    const monFrame = (feet, open, cls) => {
+    const MON_PAL = { G: '#4ade80', o: '#14532d', L: '#dcfce7', e: '#ffffff', k: '#1c1917', c: '#f9a8d4', m: '#7f1d1d', t: '#f87171', f: '#ffffff' };
+    const TENT = [2, 4, 6, 9, 11, 13];
+    const monFrame = (phase, open, cls) => {
         const mouth = open
-            ? ['oPPPPmmmmPPPPo', 'oPPPPfttfPPPPo']
-            : ['oPPPPPPPPPPPPo', 'oPPPPfmmfPPPPo'];
-        const feetRows = {
-            s: ['..PP......PP..', '..oo......oo..'],
-            a: ['..PP.....PP...', '..oo.....oo...'],
-            b: ['...PP.....PP..', '...oo.....oo..']
-        }[feet];
-        const rows = [
-            '..h........h..', '..hooooooooh..', '.oPPPPPPPPPPo.', 'oPPPPPPPPPPPPo',
-            'oPPeePPPPeePPo', 'oPPekPPPPekPPo', 'oPcPPPPPPPPcPo',
+            ? ['oGGGGGmmmmGGGGGo', 'oGGGGGfttfGGGGGo']
+            : ['oGGGGGGGGGGGGGGo', 'oGGGGGfmmfGGGGGo'];
+        const body = [
+            '....oooooooo....', '..ooGGGGGGGGoo..', '.oGGGGGGGGGGGGo.', 'oGGGGGGGGGGGGGGo',
+            'oGGeeGGeeGGeeGGo', 'oGGekGGekGGekGGo', 'oGcGGGGGGGGGGcGo',
             mouth[0], mouth[1],
-            'oPPLLLLLLLLPPo', '.oPLLLLLLLLPo.', '..oPPPPPPPPo..',
-            ...feetRows
+            'oGGLLLLLLLLLLGGo', '.oGLLLLLLLLLLGo.', '..ooGGGGGGGGoo..'
         ];
         let rects = '';
-        rows.forEach((row, y) => [...row].forEach((ch, x) => {
-            if (ch !== '.') rects += `<rect x="${x + 16}" y="${y + 2}" width="1" height="1" fill="${MON_PAL[ch] || MON_PAL.P}"/>`;
-        }));
+        const px = (x, y, ch) => { rects += `<rect x="${x + 15}" y="${y + 2}" width="1" height="1" fill="${MON_PAL[ch]}"/>`; };
+        body.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.') px(x, y, ch); }));
+        TENT.forEach((x, i) => {
+            const dir = phase === 's' ? 0 : ((i % 2 ? 1 : -1) * (phase === 'a' ? 1 : -1));
+            px(x, 12, 'G');
+            px(x + dir, 13, 'G');
+            px(x + dir * 2, 14, 'c');
+        });
         return `<g class="${cls}">${rects}</g>`;
     };
     const MON = '<g class="mon">' + monFrame('s', false, 'ms') + monFrame('s', true, 'mo') + monFrame('a', false, 'ma') + monFrame('b', false, 'mb') + '</g>';
@@ -541,12 +541,24 @@
             svg.style.transform = me.left ? 'scaleX(-1)' : '';
             if (say.classList.contains('on')) fit();
         };
+        let held = false;
         const talk = text => {
+            if (held) return;
             say.textContent = text;
             say.classList.add('on');
             fit();
         };
-        const hush = () => say.classList.remove('on');
+        const hush = () => { if (!held) say.classList.remove('on'); };
+        const hold = (text, ms) => {
+            held = true;
+            say.textContent = text;
+            say.classList.add('long', 'on');
+            fit();
+            setTimeout(() => {
+                held = false;
+                say.classList.remove('long', 'on');
+            }, ms);
+        };
         const wag = async (ms, text) => {
             const id = job;
             el.classList.add('wag');
@@ -632,7 +644,8 @@
             el.classList.remove('monster', 'morph');
             home = true;
             busy = false;
-            await wag(3000, 'More treats? Double-click!');
+            hold('More treats? Double-click! Sorry about that, I love treats. Please consider donating to your favorite charity, help make this life easier for everyone.', 53000);
+            await wag(3000);
         };
 
         const launch = (x, y) => {

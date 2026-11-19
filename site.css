@@ -620,3 +620,9 @@ h1 {
     40% { scale: 1.25 0.8; }
     100% { scale: 1; }
 }
+
+.lili .say.long {
+    width: 280px;
+    white-space: normal;
+    line-height: 1.4;
+}
