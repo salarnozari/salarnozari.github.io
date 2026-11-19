@@ -143,6 +143,78 @@
         return new Promise(r => { a.arrive = r; });
     }
 
+    let crew = [];
+    const TAXI = (() => {
+        const R = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;
+        let s = R(1, 6, 26, 4, '#facc15') + R(1, 9, 26, 1, '#ca8a04') + R(7, 3, 14, 3, '#facc15')
+            + R(8, 4, 5, 2, '#bfdbfe') + R(15, 4, 5, 2, '#bfdbfe')
+            + R(11, 1, 6, 2, '#ffffff') + R(12, 2, 1, 1, '#1c1917') + R(14, 2, 1, 1, '#1c1917') + R(16, 2, 1, 1, '#1c1917')
+            + R(26, 6, 1, 1, '#fffbeb') + R(1, 6, 1, 1, '#dc2626');
+        for (let x = 3; x <= 23; x += 2) s += R(x, 7, 1, 1, '#1c1917');
+        s += R(5, 9, 4, 3, '#1c1917') + R(19, 9, 4, 3, '#1c1917') + R(6, 10, 2, 1, '#a8a29e') + R(20, 10, 2, 1, '#a8a29e');
+        return `<svg width="84" height="36" viewBox="0 0 28 12" shape-rendering="crispEdges">${s}</svg>`;
+    })();
+
+    function slot(i, n) {
+        const r = prompt.getBoundingClientRect();
+        const sp = Math.min(44, Math.max(28, (document.documentElement.clientWidth - 80) / n));
+        const cx = r.left + window.scrollX + r.width / 2;
+        return { x: cx - (n - 1) * sp / 2 + i * sp - 16, y: r.bottom + window.scrollY + 40 };
+    }
+
+    function park(a) {
+        a.status('');
+        a.el.classList.add('parked');
+        const s = slot(Math.max(0, crew.indexOf(a)), crew.length);
+        return Promise.race([go(a, s.x, s.y), sleep(2500)]);
+    }
+
+    async function sendOff() {
+        const n = crew.length;
+        await Promise.all(crew.map((a, i) => {
+            const s = slot(i, n);
+            return Promise.race([go(a, s.x, s.y), sleep(3000)]);
+        }));
+        crew.forEach((a, i) => {
+            a.el.style.setProperty('--d', i * 0.11 + 's');
+            a.el.classList.add('dance');
+        });
+        await sleep(5000);
+        const first = slot(0, n), last = slot(n - 1, n);
+        const vw = window.scrollX + document.documentElement.clientWidth;
+        const stop = Math.min(last.x + 80, vw - 96);
+        const top = first.y - 27;
+        const taxi = document.createElement('div');
+        taxi.className = 'taxi';
+        taxi.innerHTML = TAXI;
+        taxi.firstChild.style.transform = 'scaleX(-1)';
+        taxi.style.transform = `translate3d(${vw + 20}px, ${top}px, 0)`;
+        layer.appendChild(taxi);
+        taxi.offsetWidth;
+        taxi.classList.add('drive');
+        taxi.style.transform = `translate3d(${stop}px, ${top}px, 0)`;
+        await sleep(1700);
+        taxi.classList.remove('drive');
+        const door = stop + 42 - 16;
+        const rides = [...crew].reverse().map(async (a, k) => {
+            await sleep(k * 260);
+            await Promise.race([go(a, door, first.y), sleep(2500)]);
+            a.el.classList.remove('dance', 'on');
+            await sleep(300);
+            a.el.remove();
+            const at = agents.indexOf(a);
+            if (at >= 0) agents.splice(at, 1);
+        });
+        await Promise.all(rides);
+        await sleep(400);
+        taxi.firstChild.style.transform = '';
+        taxi.classList.add('drive');
+        taxi.style.transform = `translate3d(${vw + 140}px, ${top}px, 0)`;
+        await sleep(1800);
+        taxi.remove();
+        crew = [];
+    }
+
     async function leave(a, x, y) {
         await Promise.race([go(a, x, y), sleep(700)]);
         a.el.classList.remove('on');
@@ -311,6 +383,7 @@
         }
         scene.classList.remove('flash');
         const writers = roles.filter(r => r.startsWith('writer')).map(r => team[r]);
+        crew = [lead, ...roles.map(r => team[r])];
 
         lead.status('delegating');
         const pb = box(photo);
@@ -341,7 +414,7 @@
             if (team.photo) {
                 a.status('reporting');
                 await sleep(400);
-                leave(a, lap().x, lap().y);
+                park(a);
             } else {
                 await sleep(250);
             }
@@ -362,7 +435,7 @@
             clearWire(wires.get(emailBox));
             a.status('reporting');
             await sleep(400);
-            leave(a, lap().x, lap().y);
+            park(a);
         })();
 
         const paraDone = paras.map(() => {
@@ -390,7 +463,7 @@
             }
             a.status('reporting');
             await sleep(400);
-            leave(a, lap().x, lap().y);
+            park(a);
         });
 
         const linkBatch = async (a, scope) => {
@@ -436,7 +509,7 @@
             }
             a.status('done');
             await sleep(300);
-            await leave(a, lap().x, lap().y);
+            await park(a);
         })();
         const linkTasks = a => batches.map(([job, scope]) => [job, () => linkBatch(a, scope)]);
 
@@ -450,10 +523,13 @@
         root.classList.remove('links-pending');
         lead.status('done');
         await sleep(700);
-        await leave(lead, lap().x, lap().y);
         prompt.classList.remove('sent');
         prompt.textContent = `Created by a team of ${roles.length + 1} agents`;
         prompt.classList.add('credit');
+        lead.status('');
+        lead.el.classList.add('parked');
+        await sleep(400);
+        await sendOff();
         running = false;
         if (skipBtn) skipBtn.classList.remove('on');
         sleep(900).then(() => lili());
@@ -736,6 +812,7 @@
         running = false;
         if (skipBtn) skipBtn.classList.remove('on');
         agents.length = 0;
+        crew = [];
         layer.replaceChildren();
         preps.forEach(t => { if (t.el.classList.contains('typing')) finish(t); });
         card.querySelectorAll('.flag').forEach(f => f.classList.remove('flag'));

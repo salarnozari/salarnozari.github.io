@@ -654,3 +654,39 @@ h1 {
     40% { scale: 1.25 0.8; }
     100% { scale: 1; }
 }
+
+.agent.parked .tag {
+    opacity: 0;
+}
+
+.agent.dance svg {
+    animation: dance 0.5s ease-in-out infinite;
+    animation-delay: var(--d, 0s);
+}
+
+@keyframes dance {
+    0%, 100% { translate: 0 0; rotate: 0deg; }
+    25% { translate: 0 -7px; rotate: -8deg; }
+    75% { translate: 0 -7px; rotate: 8deg; }
+}
+
+.taxi {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.taxi.drive {
+    transition: transform 1.6s cubic-bezier(0.25, 0.8, 0.3, 1);
+}
+
+.taxi.drive svg {
+    animation: bob 0.18s steps(1) infinite;
+}
+
+@keyframes bob {
+    0% { translate: 0 0; }
+    50% { translate: 0 -1px; }
+}
