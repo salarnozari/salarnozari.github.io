@@ -541,24 +541,12 @@
             svg.style.transform = me.left ? 'scaleX(-1)' : '';
             if (say.classList.contains('on')) fit();
         };
-        let held = false;
         const talk = text => {
-            if (held) return;
             say.textContent = text;
             say.classList.add('on');
             fit();
         };
-        const hush = () => { if (!held) say.classList.remove('on'); };
-        const hold = (text, ms) => {
-            held = true;
-            say.textContent = text;
-            say.classList.add('long', 'on');
-            fit();
-            setTimeout(() => {
-                held = false;
-                say.classList.remove('long', 'on');
-            }, ms);
-        };
+        const hush = () => say.classList.remove('on');
         const wag = async (ms, text) => {
             const id = job;
             el.classList.add('wag');
@@ -644,8 +632,7 @@
             el.classList.remove('monster', 'morph');
             home = true;
             busy = false;
-            hold('Sorry about that, that was the treat monster talking. More treats? Double-click!', 53000);
-            await wag(3000);
+            await wag(4500, 'Sorry about that, that was the treat monster talking. More treats? Double-click!');
         };
 
         const launch = (x, y) => {
