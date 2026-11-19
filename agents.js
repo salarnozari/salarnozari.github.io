@@ -29,6 +29,25 @@
         const r = el.getBoundingClientRect();
         return { x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height };
     };
+    const ROBOT = (() => {
+        const grid = rows => {
+            let out = '';
+            rows.forEach((row, y) => [...row].forEach((ch, x) => {
+                if (ch !== '.') out += `<rect class="${ch}" x="${x}" y="${y}" width="1" height="1"/>`;
+            }));
+            return out;
+        };
+        const E = '..............';
+        const base = [
+            '.......a......', '.......b......', '....bbbbbbb...', '....bsesesb...',
+            '....bsssssb...', '....bbbbbbb...', '...bbbbbbbbb..', E,
+            '...bbbbbbbbb..', '....bbbbbbb...', '....bb...bb...', '...bbb...bbb..'
+        ];
+        const reach = [E, E, E, E, E, E, 'k..bbbbbbbbb..', 'cclbbbbbbbbb..', 'k..bbbbbbbbb..'];
+        const pull = [E, E, E, E, E, E, E, '.ccbbbbbbbbb..'];
+        return `<svg width="28" height="24" viewBox="0 0 14 12" shape-rendering="crispEdges">${grid(base)}<g class="t0">${grid(reach)}</g><g class="t1">${grid(pull)}</g></svg>`;
+    })();
+
     const agents = [];
 
     const HEAD = [
@@ -85,7 +104,7 @@
         prompt.replaceChildren(span, caret);
         for (let i = 1; i <= text.length; i++) {
             span.textContent = text.slice(0, i);
-            await sleep(text[i - 1] === ' ' ? 150 : 70 + Math.random() * 60);
+            await sleep(text[i - 1] === ' ' ? 150 : 70);
         }
         await sleep(550);
         caret.remove();
@@ -97,7 +116,7 @@
     function spawn(role, x, y, opts = {}) {
         const el = document.createElement('div');
         el.className = 'agent' + (opts.lead ? ' lead' : '');
-        el.innerHTML = '<svg width="14" height="20" viewBox="0 0 14 20"><path d="M1 1v15.5l4-3.6 2.6 6 2.6-1.1-2.6-5.9h5.4z"/></svg><span class="tag"><b></b><i></i></span>';
+        el.innerHTML = ROBOT + '<span class="tag"><b></b><i></i></span>';
         el.querySelector('b').textContent = role;
         layer.appendChild(el);
         const a = {
@@ -202,7 +221,7 @@
             if (swap && text.includes(swap[0])) text = text.replace(swap[0], swap[1]);
             node.parentNode.insertBefore(t.caret, node.nextSibling);
             for (let j = 0; j < text.length;) {
-                const step = Math.random() < 0.35 ? 2 : 1;
+                const step = 2;
                 j = Math.min(text.length, j + step);
                 node.textContent = text.slice(0, j);
                 const pause = text[j - 1] === ' ' ? 1.5 : /[.,!]/.test(text[j - 1]) ? 4 : 1;
@@ -270,8 +289,8 @@
             wires.set(el, wire(el));
         }
         const nWriters = paras.length;
-        const photoAgent = Math.random() < 0.5;
-        const linkerAgent = Math.random() < 0.6;
+        const photoAgent = true;
+        const linkerAgent = true;
         const roles = [
             ...(photoAgent ? ['photo'] : []), 'profile',
             ...Array.from({ length: nWriters }, (_, i) => nWriters > 1 ? `writer ${i + 1}` : 'writer'),

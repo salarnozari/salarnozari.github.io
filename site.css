@@ -185,17 +185,45 @@ h1 {
 
 .agent svg {
     display: block;
+    margin: -15px 0 0 2px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 1px 1.5px rgba(28, 25, 23, 0.25));
+}
+
+.agent svg .b,
+.agent svg .l {
     fill: var(--ink);
-    stroke: #ffffff;
-    stroke-width: 1.2;
-    stroke-linejoin: round;
-    filter: drop-shadow(0 1px 1.5px rgba(28, 25, 23, 0.18));
+}
+
+.agent svg .s {
+    fill: #ffffff;
+}
+
+.agent svg .e,
+.agent svg .a {
+    fill: var(--accent);
+}
+
+.agent svg .c {
+    fill: #a8a29e;
+}
+
+.agent svg .k {
+    fill: #d6d3d1;
+}
+
+.agent svg .t0 {
+    animation: lili-a 0.24s infinite;
+}
+
+.agent svg .t1 {
+    animation: lili-b 0.24s infinite;
 }
 
 .agent .tag {
     position: absolute;
-    top: 17px;
-    left: 11px;
+    top: 10px;
+    left: 8px;
     display: flex;
     gap: 0.4em;
     padding: 2px 7px;
@@ -226,8 +254,14 @@ h1 {
     display: none;
 }
 
-.agent.lead svg {
+.agent.lead svg .b,
+.agent.lead svg .l {
     fill: var(--accent);
+}
+
+.agent.lead svg .e,
+.agent.lead svg .a {
+    fill: var(--ink);
 }
 
 .agent.lead .tag {
