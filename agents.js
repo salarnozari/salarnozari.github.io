@@ -60,15 +60,13 @@
         <path d="M69 28c8 6 11 20 6 31-3 6-9 8-13 5l1-33z" fill="#241712"/>
         <circle cx="23" cy="57" r="4.6" fill="#241712"/><circle cx="29" cy="64" r="4.2" fill="#241712"/>
         <circle cx="73" cy="57" r="4.6" fill="#241712"/><circle cx="67" cy="64" r="4.2" fill="#241712"/>
-        <ellipse cx="48" cy="38" rx="16" ry="19" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.8"/>
+        <ellipse cx="48" cy="39" rx="16" ry="20" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.8"/>
         <circle cx="38" cy="45" r="4" fill="#e08a7e" opacity="0.55"/><circle cx="58" cy="45" r="4" fill="#e08a7e" opacity="0.55"/>
-        <path d="M35 29c4-3.5 9-3.5 13-1.2 4-2.3 9-2.3 13 1.2" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M36.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
-        <path d="M48.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
-        <circle cx="42" cy="35" r="2.1" fill="#2a1a12"/><circle cx="54" cy="35" r="2.1" fill="#2a1a12"/>
         <path d="M48 37v8q-2.4 2.2-4.6 1" stroke="#b9845f" fill="none" stroke-width="1.2" stroke-linecap="round"/>
-        <path d="M37 49q5.5-3.6 11 0q5.5-3.6 11 0q-4.5 5.5-11 3.4q-6.5 2.1-11-3.4z" fill="#1c1210"/>
-        <path d="M44 54q4 2.2 8 0q-4 3.4-8 0z" fill="#b42a2a"/>
+        <g class="ex-n"><path d="M44 55.6q4 2.2 8 0q-4 3.4-8 0z" fill="#b42a2a"/></g>
+        <g class="ex-s"><ellipse cx="48" cy="56.4" rx="2.5" ry="2.8" fill="#7f1d1d"/><ellipse cx="48" cy="57.6" rx="1.5" ry="1" fill="#e0645c"/></g>
+        <g class="ex-h"><path d="M42.5 55.2q5.5 5 11 0" stroke="#b42a2a" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+        <path d="M35 58C33.5 53 35 49.5 38 48.6Q43 47 48 49.4Q53 47 58 48.6C61 49.5 62.5 53 61 58Q58.5 54.6 55 54.6Q51.5 54.6 48 53Q44.5 54.6 41 54.6Q37.5 54.6 35 58Z" fill="#1c1210"/>
         <circle cx="31.5" cy="46" r="1.7" fill="#d4a017"/><circle cx="64.5" cy="46" r="1.7" fill="#d4a017"/>
         <path d="M30 24c0-14 10-19.5 18-19.5s18 5.5 18 19.5z" fill="#a31f2a" stroke="#6e1119" stroke-width="0.8"/>
         <path d="M33 22c2-9 8-13 15-13" stroke="#d4a017" stroke-width="0.9" fill="none"/>
@@ -77,6 +75,24 @@
         <circle cx="39.5" cy="17" r="2" fill="#f5e6c8"/><circle cx="56.5" cy="17" r="2" fill="#f5e6c8"/>
         <rect x="29" y="22" width="38" height="5.4" rx="2.7" fill="#d8c9a8" stroke="#a8946a" stroke-width="0.6"/>
         ${pearls([33, 38, 43, 48, 53, 58, 63].map(x => [x, 24.7]), 1.8)}
+        <g class="ex-n">
+            <path d="M35 29.5c4-3.5 9-3.5 13-1.2 4-2.3 9-2.3 13 1.2" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M36.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
+            <path d="M48.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
+            <circle cx="42" cy="35" r="2.1" fill="#2a1a12"/><circle cx="54" cy="35" r="2.1" fill="#2a1a12"/>
+        </g>
+        <g class="ex-s">
+            <path d="M34.5 30.5c4-5 9-5 13.5-2.6 4.5-2.4 9.5-2.4 13.5 2.6" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="41.5" cy="35.6" r="4.3" fill="#fff" stroke="#2a1a12" stroke-width="0.8"/>
+            <circle cx="54.5" cy="35.6" r="4.3" fill="#fff" stroke="#2a1a12" stroke-width="0.8"/>
+            <circle cx="41.5" cy="35.6" r="1.5" fill="#2a1a12"/><circle cx="54.5" cy="35.6" r="1.5" fill="#2a1a12"/>
+            <path d="M68 27q2 3 0 5q-2-2 0-5z" fill="#7dd3fc"/>
+        </g>
+        <g class="ex-h">
+            <path d="M35 29.5c4-3.5 9-3.5 13-1.2 4-2.3 9-2.3 13 1.2" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M37 36q4.5-5.4 9 0" stroke="#2a1a12" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+            <path d="M50 36q4.5-5.4 9 0" stroke="#2a1a12" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+        </g>
     `;
     const NECK_ART = `
         ${pearls(arc(48, 62, 15, 9, 20, 160, 10), 1.7)}
@@ -196,6 +212,7 @@
         await sleep(900);
         const w = document.createElement('div');
         w.className = 'walker';
+        w.dataset.mood = 'happy';
         w.innerHTML = WALKER;
         w.style.transform = `translate3d(${b.x}px, ${b.y}px, 0)`;
         layer.appendChild(w);
@@ -433,6 +450,7 @@
         await sleep(250);
         lead.status(`spawning ${roles.length} agents`);
         scene.classList.add('flash');
+        pixel.dataset.mood = 'surprised';
         await sleep(450);
         const team = {};
         p = lap();
@@ -580,6 +598,7 @@
 
         await Promise.all([photoJob, profileJob, ...writerJobs, checkJob, linkJob]);
         root.classList.remove('links-pending');
+        pixel.dataset.mood = 'happy';
         lead.status('done');
         await sleep(700);
         prompt.classList.remove('sent');
@@ -598,6 +617,7 @@
         photo.classList.remove('pending');
         scene.style.transform = '';
         scene.classList.add('on', 'idle');
+        pixel.dataset.mood = 'happy';
         pixel.classList.add('gone');
         prompt.textContent = 'Created by a team of agents';
         prompt.classList.add('credit');
@@ -617,6 +637,7 @@
         scene.classList.remove('flash', 'move');
         scene.style.transform = '';
         scene.classList.add('on', 'idle');
+        pixel.dataset.mood = 'happy';
         pixel.classList.add('gone');
         prompt.classList.remove('sent');
         prompt.textContent = 'Created by a team of agents';

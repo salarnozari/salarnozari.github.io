@@ -613,3 +613,18 @@ h1 {
 .taxi {
     z-index: 1;
 }
+
+.ex-s,
+.ex-h {
+    opacity: 0;
+}
+
+[data-mood="surprised"] .ex-n,
+[data-mood="happy"] .ex-n {
+    opacity: 0;
+}
+
+[data-mood="surprised"] .ex-s,
+[data-mood="happy"] .ex-h {
+    opacity: 1;
+}
