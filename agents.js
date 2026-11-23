@@ -56,27 +56,35 @@
         return [+(cx + rx * Math.cos(t)).toFixed(1), +(cy + ry * Math.sin(t)).toFixed(1)];
     });
     const HEAD_ART = `
-        <path d="M27 28c-8 6-11 20-6 31 3 6 9 8 13 5l-1-33z" fill="#241712"/>
-        <path d="M69 28c8 6 11 20 6 31-3 6-9 8-13 5l1-33z" fill="#241712"/>
-        <circle cx="23" cy="57" r="4.6" fill="#241712"/><circle cx="29" cy="64" r="4.2" fill="#241712"/>
-        <circle cx="73" cy="57" r="4.6" fill="#241712"/><circle cx="67" cy="64" r="4.2" fill="#241712"/>
-        <ellipse cx="48" cy="38" rx="16" ry="19" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.8"/>
-        <circle cx="38" cy="45" r="4" fill="#e08a7e" opacity="0.55"/><circle cx="58" cy="45" r="4" fill="#e08a7e" opacity="0.55"/>
-        <path d="M35 29c4-3.5 9-3.5 13-1.2 4-2.3 9-2.3 13 1.2" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M36.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
-        <path d="M48.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
-        <circle cx="42" cy="35" r="2.1" fill="#2a1a12"/><circle cx="54" cy="35" r="2.1" fill="#2a1a12"/>
-        <path d="M48 37v8q-2.4 2.2-4.6 1" stroke="#b9845f" fill="none" stroke-width="1.2" stroke-linecap="round"/>
-        <path d="M37 49q5.5-3.6 11 0q5.5-3.6 11 0q-4.5 5.5-11 3.4q-6.5 2.1-11-3.4z" fill="#1c1210"/>
-        <path d="M44 54q4 2.2 8 0q-4 3.4-8 0z" fill="#b42a2a"/>
-        <circle cx="31.5" cy="46" r="1.7" fill="#d4a017"/><circle cx="64.5" cy="46" r="1.7" fill="#d4a017"/>
-        <path d="M30 24c0-14 10-19.5 18-19.5s18 5.5 18 19.5z" fill="#a31f2a" stroke="#6e1119" stroke-width="0.8"/>
-        <path d="M33 22c2-9 8-13 15-13" stroke="#d4a017" stroke-width="0.9" fill="none"/>
-        <path d="M63 22c-2-9-8-13-15-13" stroke="#d4a017" stroke-width="0.9" fill="none"/>
-        <circle cx="48" cy="4.5" r="2.2" fill="#d4a017"/><circle cx="48" cy="14" r="3.2" fill="#d4a017" stroke="#6e1119" stroke-width="0.8"/><circle cx="48" cy="14" r="1.5" fill="#2d6cdf"/>
-        <circle cx="39.5" cy="17" r="2" fill="#f5e6c8"/><circle cx="56.5" cy="17" r="2" fill="#f5e6c8"/>
-        <rect x="29" y="22" width="38" height="5.4" rx="2.7" fill="#d8c9a8" stroke="#a8946a" stroke-width="0.6"/>
-        ${pearls([33, 38, 43, 48, 53, 58, 63].map(x => [x, 24.7]), 1.8)}
+        <path d="M22 36c-3-16 8-30 26-30s29 14 26 30c4 8 3 20-3 28-5 6-12 4-14 0l-1-12h-16l-1 12c-2 4-9 6-14 0-6-8-7-20-3-28z" fill="#1d1411"/>
+        <circle cx="20" cy="44" r="6" fill="#1d1411"/><circle cx="24" cy="54" r="6.2" fill="#1d1411"/><circle cx="29" cy="62" r="5.6" fill="#1d1411"/>
+        <circle cx="76" cy="44" r="6" fill="#1d1411"/><circle cx="72" cy="54" r="6.2" fill="#1d1411"/><circle cx="67" cy="62" r="5.6" fill="#1d1411"/>
+        <circle cx="24" cy="30" r="6.5" fill="#1d1411"/><circle cx="72" cy="30" r="6.5" fill="#1d1411"/>
+        <ellipse cx="31.5" cy="42" rx="2.3" ry="3.6" fill="#c98f68"/><ellipse cx="64.5" cy="42" rx="2.3" ry="3.6" fill="#c98f68"/>
+        <path d="M32 36c0-11 7-17 16-17s16 6 16 17c0 8-1 13-4 18-3 5-7 7-12 7s-9-2-12-7c-3-5-4-10-4-18z" fill="#d9a07a" stroke="#b57b55" stroke-width="0.8"/>
+        <path d="M33 47c1 11 7 17 15 17s14-6 15-17c-3 7-8 9-15 9s-12-2-15-9z" fill="#4a3226" opacity="0.4"/>
+        <circle cx="36.5" cy="47" r="3.6" fill="#d98a72" opacity="0.5"/><circle cx="59.5" cy="47" r="3.6" fill="#d98a72" opacity="0.5"/>
+        <path d="M34.5 30.5c3-2.2 8-2.6 12-1" stroke="#1d1411" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M49.5 29.5c4-1.6 9-1.2 12 1" stroke="#1d1411" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <ellipse cx="40" cy="36" rx="3.4" ry="2.2" fill="#fff"/><ellipse cx="56" cy="36" rx="3.4" ry="2.2" fill="#fff"/>
+        <circle cx="40.4" cy="36" r="1.6" fill="#2a1a12"/><circle cx="56.4" cy="36" r="1.6" fill="#2a1a12"/>
+        <rect x="32.5" y="31" width="14.5" height="10" rx="3" fill="#9ec5f0" fill-opacity="0.22" stroke="#15100e" stroke-width="2.2"/>
+        <rect x="49" y="31" width="14.5" height="10" rx="3" fill="#9ec5f0" fill-opacity="0.22" stroke="#15100e" stroke-width="2.2"/>
+        <path d="M47 34.5h2" stroke="#15100e" stroke-width="2"/>
+        <path d="M32.5 34l-3.5-1.2M63.5 34l3.5-1.2" stroke="#15100e" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M48 40v7q-2.4 2-4.8 0.6" stroke="#a46b47" fill="none" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M40.5 52q7.5 7.5 15 0q-2.5 7-7.5 7t-7.5-7z" fill="#7a1f1f"/>
+        <path d="M42 52.6q6 2.8 12 0q-2.6 3.8-6 3.8t-6-3.8z" fill="#fff"/>
+        <path d="M35 49q6.5-5 13-1.6q6.5-3.4 13 1.6q-4.5 3.4-13 1.8q-8.5 1.6-13-1.8z" fill="#1d1411"/>
+        <path d="M33 22c-1-8 6-14 15-14s16 6 15 14z" fill="#a31f2a" stroke="#6e1119" stroke-width="0.8"/>
+        <path d="M36 21c2-7 6-10 12-10" stroke="#d4a017" stroke-width="0.9" fill="none"/>
+        <path d="M60 21c-2-7-6-10-12-10" stroke="#d4a017" stroke-width="0.9" fill="none"/>
+        <circle cx="48" cy="7.6" r="2" fill="#d4a017"/><circle cx="48" cy="14" r="3" fill="#d4a017" stroke="#6e1119" stroke-width="0.8"/><circle cx="48" cy="14" r="1.4" fill="#2d6cdf"/>
+        <circle cx="41" cy="16" r="1.8" fill="#f5e6c8"/><circle cx="55" cy="16" r="1.8" fill="#f5e6c8"/>
+        <rect x="32" y="20" width="32" height="5" rx="2.5" fill="#d8c9a8" stroke="#a8946a" stroke-width="0.6"/>
+        ${pearls([36, 40.5, 45, 49.5, 54, 58.5].map(x => [x, 22.5]), 1.7)}
+        <circle cx="32" cy="24" r="4.6" fill="#1d1411"/><circle cx="64" cy="24" r="4.6" fill="#1d1411"/>
+        <circle cx="38" cy="24.6" r="3" fill="#1d1411"/><circle cx="45" cy="25.2" r="2.8" fill="#1d1411"/><circle cx="52" cy="25.2" r="2.8" fill="#1d1411"/><circle cx="58.5" cy="24.6" r="3" fill="#1d1411"/>
     `;
     const NECK_ART = `
         ${pearls(arc(48, 62, 15, 9, 20, 160, 10), 1.7)}
