@@ -50,65 +50,57 @@
 
     const agents = [];
 
-    const HEAD = [
-        '.......h..h.', '.....h.hhhhh', '....hhhhhhhh', '...hhhhhhhhh', '...hhhhhhhhh',
-        '...hhhhsssss', '....hhssssss', '....hhgggggg', '.....sgwegss', '.....sssssss',
-        '......sssshh', '.......sssmm', '........ssss', '....jjjjjjWb', '...jjjjjjjWW',
-        '..jjjjjjjjJW', '..jjjjjjjjjJ', '..jjjjjjjjjj', '..jjjjjjjjjj', '..jjjjjjjjjj',
-        '..jjjjjjjjjj', '..jjjjjjjjjj'
-    ];
-    const PAL = {
-        h: '#2b2420', s: '#c99a74', g: '#1c1917', w: '#f5f5f4', e: '#1c1917', m: '#8e4f3e',
-        j: '#ece3d3', J: '#d9cdb8', W: '#ffffff', b: '#1c1917', L: '#e7e5e4', l: '#a8a29e',
-        a: '#2563eb', d: '#d6d3d1', P: '#44403c'
-    };
-
-    const runs = (grid, w) => {
-        let out = '';
-        grid.forEach((row, y) => {
-            for (let x = 0; x < w;) {
-                const ch = row[x];
-                let n = 1;
-                while (x + n < w && row[x + n] === ch) n++;
-                if (ch !== '.') out += `<rect x="${x}" y="${y}" width="${n}" height="1" fill="${PAL[ch]}"/>`;
-                x += n;
-            }
-        });
-        return out;
-    };
+    const pearls = (pts, r) => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fffaf0" stroke="#d9cbb0" stroke-width="0.4"/>`).join('');
+    const arc = (cx, cy, rx, ry, from, to, n) => Array.from({ length: n }, (_, i) => {
+        const t = (from + (to - from) * i / (n - 1)) * Math.PI / 180;
+        return [+(cx + rx * Math.cos(t)).toFixed(1), +(cy + ry * Math.sin(t)).toFixed(1)];
+    });
+    const HEAD_ART = `
+        <path d="M27 28c-8 6-11 20-6 31 3 6 9 8 13 5l-1-33z" fill="#241712"/>
+        <path d="M69 28c8 6 11 20 6 31-3 6-9 8-13 5l1-33z" fill="#241712"/>
+        <circle cx="23" cy="57" r="4.6" fill="#241712"/><circle cx="29" cy="64" r="4.2" fill="#241712"/>
+        <circle cx="73" cy="57" r="4.6" fill="#241712"/><circle cx="67" cy="64" r="4.2" fill="#241712"/>
+        <ellipse cx="48" cy="38" rx="16" ry="19" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.8"/>
+        <circle cx="38" cy="45" r="4" fill="#e08a7e" opacity="0.55"/><circle cx="58" cy="45" r="4" fill="#e08a7e" opacity="0.55"/>
+        <path d="M35 29c4-3.5 9-3.5 13-1.2 4-2.3 9-2.3 13 1.2" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M36.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
+        <path d="M48.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
+        <circle cx="42" cy="35" r="2.1" fill="#2a1a12"/><circle cx="54" cy="35" r="2.1" fill="#2a1a12"/>
+        <path d="M48 37v8q-2.4 2.2-4.6 1" stroke="#b9845f" fill="none" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M37 49q5.5-3.6 11 0q5.5-3.6 11 0q-4.5 5.5-11 3.4q-6.5 2.1-11-3.4z" fill="#1c1210"/>
+        <path d="M44 54q4 2.2 8 0q-4 3.4-8 0z" fill="#b42a2a"/>
+        <circle cx="31.5" cy="46" r="1.7" fill="#d4a017"/><circle cx="64.5" cy="46" r="1.7" fill="#d4a017"/>
+        <path d="M30 24c0-14 10-19.5 18-19.5s18 5.5 18 19.5z" fill="#a31f2a" stroke="#6e1119" stroke-width="0.8"/>
+        <path d="M33 22c2-9 8-13 15-13" stroke="#d4a017" stroke-width="0.9" fill="none"/>
+        <path d="M63 22c-2-9-8-13-15-13" stroke="#d4a017" stroke-width="0.9" fill="none"/>
+        <circle cx="48" cy="4.5" r="2.2" fill="#d4a017"/><circle cx="48" cy="14" r="3.2" fill="#d4a017" stroke="#6e1119" stroke-width="0.8"/><circle cx="48" cy="14" r="1.5" fill="#2d6cdf"/>
+        <circle cx="39.5" cy="17" r="2" fill="#f5e6c8"/><circle cx="56.5" cy="17" r="2" fill="#f5e6c8"/>
+        <rect x="29" y="22" width="38" height="5.4" rx="2.7" fill="#d8c9a8" stroke="#a8946a" stroke-width="0.6"/>
+        ${pearls([33, 38, 43, 48, 53, 58, 63].map(x => [x, 24.7]), 1.8)}
+    `;
+    const NECK_ART = `
+        ${pearls(arc(48, 62, 15, 9, 20, 160, 10), 1.7)}
+        ${pearls(arc(48, 62, 19, 16, 25, 155, 12), 1.9)}
+        <circle cx="48" cy="79" r="3.6" fill="#d4a017"/><circle cx="48" cy="79" r="2.2" fill="#b42a2a"/>
+    `;
+    const DOTS = pts => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.1" fill="#b42a2a"/><circle cx="${x}" cy="${y}" r="0.8" fill="#f2d6a2"/>`).join('');
 
     function pixelArt() {
-        const grid = HEAD.map(r => (r + [...r].reverse().join('')).split(''));
-        while (grid.length < 24) grid.push(new Array(24).fill('.'));
-        for (let x = 0; x < 24; x++) grid[22][x] = 'd';
-        const lid = Array.from({ length: 24 }, () => new Array(24).fill('.'));
-        for (let y = 14; y <= 21; y++) {
-            for (let x = 5; x <= 18; x++) lid[y][x] = y === 14 || x === 5 || x === 18 ? 'l' : 'L';
-        }
-        lid[17][11] = lid[17][12] = lid[18][11] = lid[18][12] = 'a';
-        const hand = (x, cls) => `<rect class="hand ${cls}" x="${x}" y="20" width="2" height="2" fill="${PAL.s}"/>`;
-        return `<svg viewBox="0 0 24 24" width="96" height="96" shape-rendering="crispEdges">${runs(grid, 24)}<g class="lid">${runs(lid, 24)}</g>${hand(3, 'l')}${hand(19, 'r')}<rect class="glow" x="6" y="15" width="12" height="6" fill="${PAL.a}"/></svg>`;
+        const robe = `<path d="M12 96c0-22 14-33 36-33s36 11 36 33z" fill="#efe2c4" stroke="#bda57a" stroke-width="1"/>`;
+        const lid = `<g class="lid"><rect x="25" y="70" width="46" height="22" rx="3" fill="#e7e5e4" stroke="#a8a29e" stroke-width="2"/><circle cx="48" cy="81" r="3.2" fill="#2563eb"/></g>`;
+        const hand = (x, cls) => `<ellipse class="hand ${cls}" cx="${x}" cy="91" rx="4.2" ry="3.2" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.6"/>`;
+        return `<svg viewBox="0 0 96 96" width="96" height="96">${robe}${DOTS([[22, 86], [74, 86], [18, 93], [78, 93], [30, 76], [66, 76]])}${NECK_ART}${HEAD_ART}${lid}<rect x="4" y="92" width="88" height="4" fill="#d6d3d1"/>${hand(23, 'l')}${hand(73, 'r')}<rect class="glow" x="27" y="72" width="42" height="18" rx="2" fill="#2563eb"/></svg>`;
     }
 
     const WALKER = (() => {
-        const base = HEAD.slice(0, 18).map(r => (r + [...r].reverse().join('')).split(''));
-        while (base.length < 26) base.push(new Array(24).fill('.'));
-        for (let x = 18; x <= 23; x++) {
-            base[15][x] = 'l';
-            base[16][x] = 'L';
-        }
-        base[15][17] = base[16][17] = 's';
-        const frame = (l0, l1, r0, r1) => {
-            const g = base.map(r => [...r]);
-            for (let y = 18; y <= 25; y++) {
-                for (let x = l0; x <= l1; x++) g[y][x] = y >= 24 ? 'b' : 'P';
-                for (let x = r0; x <= r1; x++) g[y][x] = y >= 24 ? 'b' : 'P';
-            }
-            return g;
-        };
-        const draw = g => runs(g, 24);
-        const A = frame(6, 9, 14, 17), B = frame(9, 11, 12, 14);
-        return `<svg viewBox="0 0 24 26" width="96" height="104" shape-rendering="crispEdges"><g class="wa">${draw(A)}</g><g class="wb">${draw(B)}</g></svg>`;
+        const sleeve = `<path d="M31 64l-8 24 7 2 8-20z" fill="#efe2c4" stroke="#bda57a" stroke-width="0.8"/><path d="M65 64l7 22-7 3-8-22z" fill="#efe2c4" stroke="#bda57a" stroke-width="0.8"/>`;
+        const coat = `<path d="M29 62h38l7 30H22z" fill="#efe2c4" stroke="#bda57a" stroke-width="1"/><rect x="26" y="75" width="44" height="4.5" fill="#a31f2a"/><circle cx="48" cy="77" r="2.4" fill="#d4a017"/>`;
+        const laptop = `<rect x="66" y="78" width="24" height="5" rx="1" fill="#e7e5e4" stroke="#a8a29e" stroke-width="1.2"/><circle cx="68" cy="82" r="3.2" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.6"/>`;
+        const upper = `${coat}${DOTS([[34, 86], [62, 86], [40, 69], [56, 69]])}${sleeve}${NECK_ART.replace(/<circle cx="48" cy="79"[^>]*\/><circle cx="48" cy="79"[^>]*\/>/, '')}${HEAD_ART}${laptop}`;
+        const leg = (x, w) => `<rect x="${x}" y="91" width="${w}" height="10" fill="#3b3a52"/><path d="M${x - 1} 100h${w + 4}q2 1 1 4h-${w + 5}z" fill="#1c1917"/>`;
+        const A = leg(32, 11) + leg(53, 11);
+        const B = leg(38, 9) + leg(49, 9);
+        return `<svg viewBox="0 0 96 104" width="96" height="104"><g class="wa">${A}</g><g class="wb">${B}</g>${upper}</svg>`;
     })();
 
     function lap() {
@@ -188,7 +180,7 @@
         const r = prompt.getBoundingClientRect();
         const sp = Math.min(44, Math.max(28, (document.documentElement.clientWidth - 80) / n));
         const cx = r.left + window.scrollX + r.width / 2;
-        return { x: cx - (n - 1) * sp / 2 + i * sp - 16, y: r.bottom + window.scrollY + 40 };
+        return { x: cx - (n - 1) * sp / 2 + i * sp - 16, y: r.bottom + window.scrollY + 66 };
     }
 
     function park(a) {

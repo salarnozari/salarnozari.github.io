@@ -330,7 +330,6 @@ h1 {
 
 .pixel svg {
     display: block;
-    image-rendering: pixelated;
 }
 
 .lid {
@@ -359,7 +358,6 @@ h1 {
 
 .walker svg {
     display: block;
-    image-rendering: pixelated;
 }
 
 .walker svg .wa {
