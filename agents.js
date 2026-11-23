@@ -76,13 +76,7 @@
         <path d="M40.5 52q7.5 7.5 15 0q-2.5 7-7.5 7t-7.5-7z" fill="#7a1f1f"/>
         <path d="M42 52.6q6 2.8 12 0q-2.6 3.8-6 3.8t-6-3.8z" fill="#fff"/>
         <path d="M35 49q6.5-5 13-1.6q6.5-3.4 13 1.6q-4.5 3.4-13 1.8q-8.5 1.6-13-1.8z" fill="#1d1411"/>
-        <path d="M33 22c-1-8 6-14 15-14s16 6 15 14z" fill="#a31f2a" stroke="#6e1119" stroke-width="0.8"/>
-        <path d="M36 21c2-7 6-10 12-10" stroke="#d4a017" stroke-width="0.9" fill="none"/>
-        <path d="M60 21c-2-7-6-10-12-10" stroke="#d4a017" stroke-width="0.9" fill="none"/>
-        <circle cx="48" cy="7.6" r="2" fill="#d4a017"/><circle cx="48" cy="14" r="3" fill="#d4a017" stroke="#6e1119" stroke-width="0.8"/><circle cx="48" cy="14" r="1.4" fill="#2d6cdf"/>
-        <circle cx="41" cy="16" r="1.8" fill="#f5e6c8"/><circle cx="55" cy="16" r="1.8" fill="#f5e6c8"/>
-        <rect x="32" y="20" width="32" height="5" rx="2.5" fill="#d8c9a8" stroke="#a8946a" stroke-width="0.6"/>
-        ${pearls([36, 40.5, 45, 49.5, 54, 58.5].map(x => [x, 22.5]), 1.7)}
+        <circle cx="27" cy="17" r="7" fill="#1d1411"/><circle cx="69" cy="17" r="7" fill="#1d1411"/><circle cx="35" cy="10" r="7" fill="#1d1411"/><circle cx="61" cy="10" r="7" fill="#1d1411"/><circle cx="48" cy="7" r="7.5" fill="#1d1411"/><circle cx="41" cy="9" r="6" fill="#1d1411"/><circle cx="55" cy="9" r="6" fill="#1d1411"/>
         <circle cx="32" cy="24" r="4.6" fill="#1d1411"/><circle cx="64" cy="24" r="4.6" fill="#1d1411"/>
         <circle cx="38" cy="24.6" r="3" fill="#1d1411"/><circle cx="45" cy="25.2" r="2.8" fill="#1d1411"/><circle cx="52" cy="25.2" r="2.8" fill="#1d1411"/><circle cx="58.5" cy="24.6" r="3" fill="#1d1411"/>
     `;
