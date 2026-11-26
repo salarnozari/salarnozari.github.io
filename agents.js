@@ -50,70 +50,76 @@
 
     const agents = [];
 
-    const pearls = (pts, r) => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fffaf0" stroke="#d9cbb0" stroke-width="0.4"/>`).join('');
-    const arc = (cx, cy, rx, ry, from, to, n) => Array.from({ length: n }, (_, i) => {
-        const t = (from + (to - from) * i / (n - 1)) * Math.PI / 180;
-        return [+(cx + rx * Math.cos(t)).toFixed(1), +(cy + ry * Math.sin(t)).toFixed(1)];
-    });
+    const SKIN = '#c98f68';
+    const SKIN_LINE = '#a8714f';
+    const HAIR = '#1a1311';
+    const CAP = '#1f2633';
+    const HOOD = '#3d5a80';
+    const HOOD_LINE = '#2b4262';
+    const curls = pts => pts.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${HAIR}"/>`).join('');
     const HEAD_ART = `
-        <path d="M27 28c-8 6-11 20-6 31 3 6 9 8 13 5l-1-33z" fill="#241712"/>
-        <path d="M69 28c8 6 11 20 6 31-3 6-9 8-13 5l1-33z" fill="#241712"/>
-        <circle cx="23" cy="57" r="4.6" fill="#241712"/><circle cx="29" cy="64" r="4.2" fill="#241712"/>
-        <circle cx="73" cy="57" r="4.6" fill="#241712"/><circle cx="67" cy="64" r="4.2" fill="#241712"/>
-        <ellipse cx="48" cy="39" rx="16" ry="20" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.8"/>
-        <circle cx="38" cy="45" r="4" fill="#e08a7e" opacity="0.55"/><circle cx="58" cy="45" r="4" fill="#e08a7e" opacity="0.55"/>
-        <path d="M48 37v8q-2.4 2.2-4.6 1" stroke="#b9845f" fill="none" stroke-width="1.2" stroke-linecap="round"/>
-        <g class="ex-n"><path d="M44 55.6q4 2.2 8 0q-4 3.4-8 0z" fill="#b42a2a"/></g>
-        <g class="ex-s"><ellipse cx="48" cy="56.4" rx="2.5" ry="2.8" fill="#7f1d1d"/><ellipse cx="48" cy="57.6" rx="1.5" ry="1" fill="#e0645c"/></g>
-        <g class="ex-h"><path d="M42.5 55.2q5.5 5 11 0" stroke="#b42a2a" stroke-width="2" fill="none" stroke-linecap="round"/></g>
-        <path d="M35 58C33.5 53 35 49.5 38 48.6Q43 47 48 49.4Q53 47 58 48.6C61 49.5 62.5 53 61 58Q58.5 54.6 55 54.6Q51.5 54.6 48 53Q44.5 54.6 41 54.6Q37.5 54.6 35 58Z" fill="#1c1210"/>
-        <circle cx="31.5" cy="46" r="1.7" fill="#d4a017"/><circle cx="64.5" cy="46" r="1.7" fill="#d4a017"/>
-        <path d="M30 24c0-14 10-19.5 18-19.5s18 5.5 18 19.5z" fill="#a31f2a" stroke="#6e1119" stroke-width="0.8"/>
-        <path d="M33 22c2-9 8-13 15-13" stroke="#d4a017" stroke-width="0.9" fill="none"/>
-        <path d="M63 22c-2-9-8-13-15-13" stroke="#d4a017" stroke-width="0.9" fill="none"/>
-        <circle cx="48" cy="4.5" r="2.2" fill="#d4a017"/><circle cx="48" cy="14" r="3.2" fill="#d4a017" stroke="#6e1119" stroke-width="0.8"/><circle cx="48" cy="14" r="1.5" fill="#2d6cdf"/>
-        <circle cx="39.5" cy="17" r="2" fill="#f5e6c8"/><circle cx="56.5" cy="17" r="2" fill="#f5e6c8"/>
-        <rect x="29" y="22" width="38" height="5.4" rx="2.7" fill="#d8c9a8" stroke="#a8946a" stroke-width="0.6"/>
-        ${pearls([33, 38, 43, 48, 53, 58, 63].map(x => [x, 24.7]), 1.8)}
+        <path d="M55 13C63 4.5 76 4 80.5 8.6C77.5 13.4 67.5 16.6 59.5 17.6z" fill="#151a24"/>
+        <path d="M58 15.2C65 10.4 73 9 78.6 9.4" stroke="#2c3546" stroke-width="0.8" fill="none"/>
+        ${curls([[30.5, 27, 4.4], [65.5, 27, 4.4], [28.5, 33.5, 4.6], [67.5, 33.5, 4.6], [28.8, 40.5, 4.3], [67.2, 40.5, 4.3], [30.5, 46.5, 3.8], [65.5, 46.5, 3.8], [33, 50.5, 3], [63, 50.5, 3]])}
+        <ellipse cx="32.6" cy="41" rx="2.6" ry="4" fill="${SKIN}" stroke="${SKIN_LINE}" stroke-width="0.6"/>
+        <ellipse cx="63.4" cy="41" rx="2.6" ry="4" fill="${SKIN}" stroke="${SKIN_LINE}" stroke-width="0.6"/>
+        <ellipse cx="48" cy="40" rx="15.5" ry="19" fill="${SKIN}" stroke="${SKIN_LINE}" stroke-width="0.8"/>
+        <path d="M33.2 43.5C33.4 53 39 59 48 59.2C57 59 62.6 53 62.8 43.5C61.5 50 58.5 53.2 55.5 53.6Q48 51.4 40.5 53.6C37.5 53.2 34.5 50 33.2 43.5Z" fill="#2a1d18" opacity="0.26"/>
+        <circle cx="38" cy="46" r="3.6" fill="#d9776a" opacity="0.3"/><circle cx="58" cy="46" r="3.6" fill="#d9776a" opacity="0.3"/>
+        <path d="M48 38v6.4q-2.2 2-4.4 0.8" stroke="#94603f" fill="none" stroke-width="1.2" stroke-linecap="round"/>
+        <g class="ex-n"><path d="M44 55.4q4 2.4 8 0" stroke="#7a2b24" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>
+        <g class="ex-s"><ellipse cx="48" cy="56.4" rx="2.4" ry="2.7" fill="#5c1a16"/><ellipse cx="48" cy="57.5" rx="1.4" ry="0.9" fill="#d8645c"/></g>
+        <g class="ex-h"><path d="M42.6 54.4q5.4 6.4 10.8 0z" fill="#fff" stroke="#7a2b24" stroke-width="1.1" stroke-linejoin="round"/></g>
+        <path d="M38.6 54C39 50.2 43 48.6 48 50.2C53 48.6 57 50.2 57.4 54Q53.4 52 48 52.6Q42.6 52 38.6 54Z" fill="${HAIR}"/>
+        <path d="M31.5 27.5C31 14.5 38.5 7.5 48 7.5C57.5 7.5 65 14.5 64.5 27.5Q48 23 31.5 27.5Z" fill="${CAP}" stroke="#121620" stroke-width="0.8"/>
+        <path d="M48 7.5C42.5 11.5 39.5 17.5 39 25.2M48 7.5C53.5 11.5 56.5 17.5 57 25.2" stroke="#121620" stroke-width="0.7" fill="none"/>
+        <path d="M36 13.5C39 10.5 42.5 9.2 45 9" stroke="#3a4558" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <circle cx="48" cy="7.8" r="1.6" fill="#121620"/>
+        <path d="M41.8 25.4Q41.8 18.8 48 18.8Q54.2 18.8 54.2 25.4Z" fill="${HAIR}"/>
+        <rect x="41" y="21.6" width="14" height="2.2" rx="1.1" fill="#2e3748"/>
+        <circle cx="43.6" cy="22.7" r="0.6" fill="#cfd6e3"/><circle cx="46.4" cy="22.7" r="0.6" fill="#cfd6e3"/><circle cx="49.2" cy="22.7" r="0.6" fill="#cfd6e3"/><circle cx="52" cy="22.7" r="0.6" fill="#cfd6e3"/>
+        ${curls([[44.6, 25.4, 2], [48, 26, 2.3], [51.4, 25.3, 1.9]])}
         <g class="ex-n">
-            <path d="M35 29.5c4-3.5 9-3.5 13-1.2 4-2.3 9-2.3 13 1.2" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
-            <path d="M36.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
-            <path d="M48.5 35q5.5-4.6 11 0q-5.5 3.6-11 0z" fill="#fff" stroke="#2a1a12" stroke-width="0.7"/>
-            <circle cx="42" cy="35" r="2.1" fill="#2a1a12"/><circle cx="54" cy="35" r="2.1" fill="#2a1a12"/>
+            <path d="M36.5 29.8q4.5-2.8 9-0.8M50.5 29q4.5-2 9 0.8" stroke="${HAIR}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <circle cx="40.8" cy="36.4" r="1.9" fill="#1f1512"/><circle cx="55.2" cy="36.4" r="1.9" fill="#1f1512"/>
+            <circle cx="41.4" cy="35.8" r="0.55" fill="#fff"/><circle cx="55.8" cy="35.8" r="0.55" fill="#fff"/>
         </g>
         <g class="ex-s">
-            <path d="M34.5 30.5c4-5 9-5 13.5-2.6 4.5-2.4 9.5-2.4 13.5 2.6" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
-            <circle cx="41.5" cy="35.6" r="4.3" fill="#fff" stroke="#2a1a12" stroke-width="0.8"/>
-            <circle cx="54.5" cy="35.6" r="4.3" fill="#fff" stroke="#2a1a12" stroke-width="0.8"/>
-            <circle cx="41.5" cy="35.6" r="1.5" fill="#2a1a12"/><circle cx="54.5" cy="35.6" r="1.5" fill="#2a1a12"/>
-            <path d="M68 27q2 3 0 5q-2-2 0-5z" fill="#7dd3fc"/>
+            <path d="M36.5 28q4.5-3.6 9-1.6M50.5 26.4q4.5-2 9 1.6" stroke="${HAIR}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <circle cx="40.8" cy="36.4" r="3" fill="#fff" stroke="#1f1512" stroke-width="0.6"/><circle cx="55.2" cy="36.4" r="3" fill="#fff" stroke="#1f1512" stroke-width="0.6"/>
+            <circle cx="40.8" cy="36.4" r="1.3" fill="#1f1512"/><circle cx="55.2" cy="36.4" r="1.3" fill="#1f1512"/>
+            <path d="M68 29q2 3 0 5q-2-2 0-5z" fill="#7dd3fc"/>
         </g>
         <g class="ex-h">
-            <path d="M35 29.5c4-3.5 9-3.5 13-1.2 4-2.3 9-2.3 13 1.2" stroke="#1c1210" stroke-width="3" fill="none" stroke-linecap="round"/>
-            <path d="M37 36q4.5-5.4 9 0" stroke="#2a1a12" stroke-width="1.9" fill="none" stroke-linecap="round"/>
-            <path d="M50 36q4.5-5.4 9 0" stroke="#2a1a12" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+            <path d="M36.5 29.8q4.5-2.8 9-0.8M50.5 29q4.5-2 9 0.8" stroke="${HAIR}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <path d="M38.2 37.6q2.6-3 5.2 0M52.6 37.6q2.6-3 5.2 0" stroke="#1f1512" stroke-width="1.7" fill="none" stroke-linecap="round"/>
         </g>
+        <rect x="35" y="32" width="11.6" height="8.8" rx="2.6" fill="#dbeafe" fill-opacity="0.14" stroke="#111" stroke-width="1.9"/>
+        <rect x="49.4" y="32" width="11.6" height="8.8" rx="2.6" fill="#dbeafe" fill-opacity="0.14" stroke="#111" stroke-width="1.9"/>
+        <path d="M46.6 35q1.4-1.3 2.8 0M35 34.2l-2.6-0.6M61 34.2l2.6-0.6" stroke="#111" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M37 33.6l2.6 0M51.4 33.6l2.6 0" stroke="#fff" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/>
     `;
     const NECK_ART = `
-        ${pearls(arc(48, 62, 15, 9, 20, 160, 10), 1.7)}
-        ${pearls(arc(48, 62, 19, 16, 25, 155, 12), 1.9)}
-        <circle cx="48" cy="79" r="3.6" fill="#d4a017"/><circle cx="48" cy="79" r="2.2" fill="#b42a2a"/>
+        <rect x="42.5" y="54" width="11" height="11" fill="${SKIN}" stroke="${SKIN_LINE}" stroke-width="0.6"/>
+        <path d="M31 66C34 60 40 58.5 48 62.5C56 58.5 62 60 65 66C60 71 36 71 31 66Z" fill="${HOOD_LINE}"/>
+        <path d="M35 65.5C39 63 44 63.2 48 66C52 63.2 57 63 61 65.5" stroke="#5a7aa3" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M44.6 67.5l-0.8 9M51.4 67.5l0.8 9" stroke="#e7e5e4" stroke-width="1.1" stroke-linecap="round"/>
+        <rect x="42.8" y="76" width="1.8" height="2.6" rx="0.6" fill="#a8a29e"/><rect x="51.4" y="76" width="1.8" height="2.6" rx="0.6" fill="#a8a29e"/>
     `;
-    const DOTS = pts => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.1" fill="#b42a2a"/><circle cx="${x}" cy="${y}" r="0.8" fill="#f2d6a2"/>`).join('');
 
     function pixelArt() {
-        const robe = `<path d="M12 96c0-22 14-33 36-33s36 11 36 33z" fill="#efe2c4" stroke="#bda57a" stroke-width="1"/>`;
+        const robe = `<path d="M12 96c0-22 14-33 36-33s36 11 36 33z" fill="${HOOD}" stroke="${HOOD_LINE}" stroke-width="1"/>`;
         const lid = `<g class="lid"><rect x="25" y="70" width="46" height="22" rx="3" fill="#e7e5e4" stroke="#a8a29e" stroke-width="2"/><circle cx="48" cy="81" r="3.2" fill="#2563eb"/></g>`;
-        const hand = (x, cls) => `<ellipse class="hand ${cls}" cx="${x}" cy="91" rx="4.2" ry="3.2" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.6"/>`;
-        return `<svg viewBox="0 0 96 96" width="96" height="96">${robe}${DOTS([[22, 86], [74, 86], [18, 93], [78, 93], [30, 76], [66, 76]])}${NECK_ART}${HEAD_ART}${lid}<rect x="4" y="92" width="88" height="4" fill="#d6d3d1"/>${hand(23, 'l')}${hand(73, 'r')}<rect class="glow" x="27" y="72" width="42" height="18" rx="2" fill="#2563eb"/></svg>`;
+        const hand = (x, cls) => `<ellipse class="hand ${cls}" cx="${x}" cy="91" rx="4.2" ry="3.2" fill="${SKIN}" stroke="${SKIN_LINE}" stroke-width="0.6"/>`;
+        return `<svg viewBox="0 0 96 96" width="96" height="96">${robe}${NECK_ART}${HEAD_ART}${lid}<rect x="4" y="92" width="88" height="4" fill="#d6d3d1"/>${hand(23, 'l')}${hand(73, 'r')}<rect class="glow" x="27" y="72" width="42" height="18" rx="2" fill="#2563eb"/></svg>`;
     }
 
     const WALKER = (() => {
-        const sleeve = `<path d="M31 64l-8 24 7 2 8-20z" fill="#efe2c4" stroke="#bda57a" stroke-width="0.8"/><path d="M65 64l7 22-7 3-8-22z" fill="#efe2c4" stroke="#bda57a" stroke-width="0.8"/>`;
-        const coat = `<path d="M29 62h38l7 30H22z" fill="#efe2c4" stroke="#bda57a" stroke-width="1"/><rect x="26" y="75" width="44" height="4.5" fill="#a31f2a"/><circle cx="48" cy="77" r="2.4" fill="#d4a017"/>`;
-        const laptop = `<rect x="66" y="78" width="24" height="5" rx="1" fill="#e7e5e4" stroke="#a8a29e" stroke-width="1.2"/><circle cx="68" cy="82" r="3.2" fill="#e9bf9a" stroke="#c99a74" stroke-width="0.6"/>`;
-        const upper = `${coat}${DOTS([[34, 86], [62, 86], [40, 69], [56, 69]])}${sleeve}${NECK_ART.replace(/<circle cx="48" cy="79"[^>]*\/><circle cx="48" cy="79"[^>]*\/>/, '')}${HEAD_ART}${laptop}`;
-        const leg = (x, w) => `<rect x="${x}" y="91" width="${w}" height="10" fill="#3b3a52"/><path d="M${x - 1} 100h${w + 4}q2 1 1 4h-${w + 5}z" fill="#1c1917"/>`;
+        const sleeve = `<path d="M31 64l-8 24 7 2 8-20z" fill="${HOOD}" stroke="${HOOD_LINE}" stroke-width="0.8"/><path d="M65 64l7 22-7 3-8-22z" fill="${HOOD}" stroke="${HOOD_LINE}" stroke-width="0.8"/>`;
+        const coat = `<path d="M29 62h38l6 30H23z" fill="${HOOD}" stroke="${HOOD_LINE}" stroke-width="1"/><path d="M36 79h24l-2.5 9h-19z" fill="${HOOD_LINE}"/><rect x="23.5" y="89" width="49" height="3" fill="${HOOD_LINE}"/>`;
+        const laptop = `<rect x="66" y="78" width="24" height="5" rx="1" fill="#e7e5e4" stroke="#a8a29e" stroke-width="1.2"/><circle cx="68" cy="82" r="3.2" fill="${SKIN}" stroke="${SKIN_LINE}" stroke-width="0.6"/>`;
+        const upper = `${coat}${sleeve}${NECK_ART}${HEAD_ART}${laptop}`;
+        const leg = (x, w) => `<rect x="${x}" y="91" width="${w}" height="10" fill="#334766"/><path d="M${x - 1} 99.5h${w + 4}q2.4 1 1.4 4.5h-${w + 5.4}z" fill="#f5f5f4" stroke="#a8a29e" stroke-width="0.6"/><rect x="${x - 1}" y="102.6" width="${w + 5}" height="1.4" fill="#dc2626"/>`;
         const A = leg(32, 11) + leg(53, 11);
         const B = leg(38, 9) + leg(49, 9);
         return `<svg viewBox="0 0 96 104" width="96" height="104"><g class="wa">${A}</g><g class="wb">${B}</g>${upper}</svg>`;
