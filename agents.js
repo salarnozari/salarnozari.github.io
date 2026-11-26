@@ -58,8 +58,6 @@
     const HOOD_LINE = '#2b4262';
     const curls = pts => pts.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${HAIR}"/>`).join('');
     const HEAD_ART = `
-        <path d="M55 13C63 4.5 76 4 80.5 8.6C77.5 13.4 67.5 16.6 59.5 17.6z" fill="#151a24"/>
-        <path d="M58 15.2C65 10.4 73 9 78.6 9.4" stroke="#2c3546" stroke-width="0.8" fill="none"/>
         ${curls([[30.5, 27, 4.4], [65.5, 27, 4.4], [28.5, 33.5, 4.6], [67.5, 33.5, 4.6], [28.8, 40.5, 4.3], [67.2, 40.5, 4.3], [30.5, 46.5, 3.8], [65.5, 46.5, 3.8], [33, 50.5, 3], [63, 50.5, 3]])}
         <ellipse cx="32.6" cy="41" rx="2.6" ry="4" fill="${SKIN}" stroke="${SKIN_LINE}" stroke-width="0.6"/>
         <ellipse cx="63.4" cy="41" rx="2.6" ry="4" fill="${SKIN}" stroke="${SKIN_LINE}" stroke-width="0.6"/>
@@ -71,14 +69,8 @@
         <g class="ex-s"><ellipse cx="48" cy="56.4" rx="2.4" ry="2.7" fill="#5c1a16"/><ellipse cx="48" cy="57.5" rx="1.4" ry="0.9" fill="#d8645c"/></g>
         <g class="ex-h"><path d="M42.6 54.4q5.4 6.4 10.8 0z" fill="#fff" stroke="#7a2b24" stroke-width="1.1" stroke-linejoin="round"/></g>
         <path d="M38.6 54C39 50.2 43 48.6 48 50.2C53 48.6 57 50.2 57.4 54Q53.4 52 48 52.6Q42.6 52 38.6 54Z" fill="${HAIR}"/>
-        <path d="M31.5 27.5C31 14.5 38.5 7.5 48 7.5C57.5 7.5 65 14.5 64.5 27.5Q48 23 31.5 27.5Z" fill="${CAP}" stroke="#121620" stroke-width="0.8"/>
-        <path d="M48 7.5C42.5 11.5 39.5 17.5 39 25.2M48 7.5C53.5 11.5 56.5 17.5 57 25.2" stroke="#121620" stroke-width="0.7" fill="none"/>
-        <path d="M36 13.5C39 10.5 42.5 9.2 45 9" stroke="#3a4558" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <circle cx="48" cy="7.8" r="1.6" fill="#121620"/>
-        <path d="M41.8 25.4Q41.8 18.8 48 18.8Q54.2 18.8 54.2 25.4Z" fill="${HAIR}"/>
-        <rect x="41" y="21.6" width="14" height="2.2" rx="1.1" fill="#2e3748"/>
-        <circle cx="43.6" cy="22.7" r="0.6" fill="#cfd6e3"/><circle cx="46.4" cy="22.7" r="0.6" fill="#cfd6e3"/><circle cx="49.2" cy="22.7" r="0.6" fill="#cfd6e3"/><circle cx="52" cy="22.7" r="0.6" fill="#cfd6e3"/>
-        ${curls([[44.6, 25.4, 2], [48, 26, 2.3], [51.4, 25.3, 1.9]])}
+        <path d="M31.5 30C29 17 37 9 48 9C59 9 67 17 64.5 30Q56 22.5 48 24.5Q40 22.5 31.5 30Z" fill="${HAIR}"/>
+        ${curls([[32.5, 21, 4.5], [36.5, 14.5, 4.7], [42.5, 10.5, 4.8], [49, 9.4, 5], [55.5, 11, 4.8], [60.5, 15, 4.6], [64, 21.5, 4.4], [39.5, 24.2, 2.7], [44.5, 25.4, 2.5], [49.5, 25.6, 2.6], [54.8, 24.4, 2.5], [58.8, 25.6, 2.2], [36, 26.4, 2.2]])}
         <g class="ex-n">
             <path d="M36.5 29.8q4.5-2.8 9-0.8M50.5 29q4.5-2 9 0.8" stroke="${HAIR}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
             <circle cx="40.8" cy="36.4" r="1.9" fill="#1f1512"/><circle cx="55.2" cy="36.4" r="1.9" fill="#1f1512"/>
