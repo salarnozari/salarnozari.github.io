@@ -67,7 +67,7 @@ body {
 
 .profile-image img.pending {
     opacity: 0;
-    transform: translate(-46px, 34px) scale(0.94);
+    transform: scale(0.96);
 }
 
 h1 {
@@ -378,6 +378,51 @@ h1 {
 
 .walker.walking svg {
     animation: strut 0.2s steps(1) infinite;
+}
+
+.walker.morph {
+    opacity: 0;
+}
+
+.walker svg .wa,
+.walker svg .wb {
+    transition: opacity 0.3s ease;
+}
+
+.walker.morph svg .wa,
+.walker.morph svg .wb {
+    opacity: 0;
+    animation: none;
+}
+
+.walker.pose svg {
+    transform-origin: 50% 100%;
+    animation: pose 0.65s cubic-bezier(0.3, 1.6, 0.5, 1) forwards;
+}
+
+@keyframes pose {
+    0% { transform: none; }
+    40% { transform: translateY(-8px) rotate(-7deg) scale(1.06); }
+    70% { transform: rotate(3deg) scale(1.02); }
+    100% { transform: none; }
+}
+
+.snap {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.snap.on {
+    animation: snap 0.6s ease-out forwards;
+}
+
+@keyframes snap {
+    0% { opacity: 0; transform: scale(0.9); }
+    15% { opacity: 0.9; transform: scale(1.05); }
+    100% { opacity: 0; transform: scale(1.25); }
 }
 
 @keyframes strut {
